@@ -1,5 +1,5 @@
 "use client"
-import { useState, useEffect, useRef } from "react"
+import { useState, useEffect, useRef, useMemo } from "react"
 import type React from "react"
 import * as LucideIcons from "lucide-react"
 import Image from "next/image"
@@ -22,6 +22,7 @@ import { addDoc, collection, doc, getDoc, getDocs, limit, query, where } from "f
 import { firestore } from "@/lib/firebase"
 import { useRouter } from "next/navigation"
 import { Sheet, SheetContent, SheetDescription, SheetHeader, SheetTitle, SheetTrigger } from "@/components/ui/sheet"
+import { MapPin, User } from "lucide-react"
 
 interface CartItem {
   id: string
@@ -15794,347 +15795,121 @@ const wilayass=[
     "delivery_time_payment": 10
   }
 ]
-const OrderSheet = ({
-  productData,
-  selectedColor,
-  selectedSize,
-  quantity,
-  onQuantityChange,
-  onSubmit,
-  deliveryPrices,
-  selectedProvince,
-  setSelectedProvince,
-  setSelectedColor,
-  setSelectedSize,
-  handleQuantityChange,
-  name,setName,
-  phone,setPhone,
-  selectedCommune,
-  setSelectedCommune,
-  selectedDeliveryMethod,
-  setSelectedDeliveryMethod,
-
-
-}: {
-  productData: any
-  selectedColor: string
-  selectedSize: string
-  quantity: number
-  onQuantityChange: (change: number) => void
-  onSubmit: (e: React.FormEvent) => void
-}) => {
-
-
-  const [isSubmitting, setIsSubmitting] = useState(false)
-
-
-
-  const productTotal = Number.parseInt(productData.priceAfter) * quantity
-  const shippingCost = selectedDeliveryMethod
-    ? deliveryPrices[selectedDeliveryMethod as keyof typeof deliveryPrices]
-    : 0
-  const grandTotal = productTotal + shippingCost
-
-  const handleFormSubmit = async (e: React.FormEvent) => {
-    e.preventDefault()
-     const isValid =
-    name.trim() !== "" &&
-    phone.trim() !== "" &&
-    selectedProvince !== "" &&
-    selectedCommune !== "" &&
-    selectedDeliveryMethod !== "" &&
-    selectedColor !== "" &&
-    selectedSize !== "" &&
-    quantity > 0;
-
-  if (!isValid) {
-    alert("يرجى ملء جميع الحقول المطلوبة بشكل صحيح.");
-    return;
-  }
-
-    setIsSubmitting(true)
-
-    // Simulate form submission
-    //await new Promise((resolve) => setTimeout(resolve, 2000))
-
-    setIsSubmitting(false)
-    onSubmit(e)
-  }
-  const [isImageZoomed, setIsImageZoomed] = useState(false)
-  const currentColorObj =
-  productData.colorImages.find((img: any) => img.color === selectedColor) || productData.colorImages[0]
-  return (
-    <form onSubmit={handleFormSubmit} className="space-y-6">
-      {/* Order Summary */}
-
-
-      {/* Customer Information */}
-      <div className="space-y-4">
-      <h4 className="font-semibold text-lg">المعلومات الشخصية</h4>
-
-        <div>
-          <Label htmlFor="name" className="text-sm font-semibold mb-2 block">
-            Nom /الاسم الكامل<span className="text-red-500">*</span>
-          </Label>
-          <div className="flex">
-           
-            <Input id="name" className="rounded-l-xl border-l-0 focus:ring-rose-500 focus:border-rose-500" required     value={name}
-    onChange={(e) => setName(e.target.value)} />
-          </div>
-        </div>
-
-        <div>
-          <Label htmlFor="phone" className="text-sm font-semibold mb-2 block">
-            Téléphone /الهاتف<span className="text-red-500">*</span>
-          </Label>
-          <div className="flex">
-          <Input
-    id="phone"
-    type="tel"
-    inputMode="tel"
-    pattern="[0-9]*"
-    className="rounded-l-xl border-l-0 focus:ring-rose-500 focus:border-rose-500"
-    required
-    value={phone}
-    onChange={(e) => setPhone(e.target.value)}
-  />
-          </div>
-        </div>
-
-        <div>
-          <Label htmlFor="wilayaa" className="text-sm font-semibold mb-2 block">
-            Wilaya /الولاية<span className="text-red-500">*</span>
-          </Label>
-          <Select
-            value={selectedProvince.toString()}
-            onValueChange={(value) => {
-              setSelectedProvince(value)
-              setSelectedCommune("")
-            }}
-            required
-          >
-            <SelectTrigger className="w-full focus:ring-rose-500 focus:border-rose-500">
-              <div className="flex items-center gap-2">
-                <span className="text-gray-600 dark:text-stone-400">📍</span>
-                <SelectValue placeholder="Sélectionner wilaya" />
-              </div>
-            </SelectTrigger>
-            <SelectContent>
-              {wilayass.map((wilaya: any) => (
-                <SelectItem key={wilaya.id} value={wilaya.id.toString()}>
-                  {wilaya.id} - {wilaya.name}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
-        </div>
-
-        <div>
-          <Label htmlFor="commune" className="text-sm font-semibold mb-2 block">
-            Commune /	البلدية<span className="text-red-500">*</span>
-          </Label>
-          <Select value={selectedCommune} onValueChange={setSelectedCommune} disabled={!selectedProvince} required>
-            <SelectTrigger className="w-full focus:ring-rose-500 focus:border-rose-500">
-              <SelectValue placeholder="Sélectionner commune" />
-            </SelectTrigger>
-            <SelectContent>
-              {comuness
-                .filter((commune) => commune.wilaya_id.toString() === selectedProvince)
-                .map((commune) => (
-                  <SelectItem key={commune.id} value={commune.name}>
-                    {commune.name}
-                  </SelectItem>
-                ))}
-            </SelectContent>
-          </Select>
-        </div>
-      </div>
-
-      {/* Delivery Method */}
-      <div className="mt-6">
-        <Label className="text-sm font-semibold text-gray-700 dark:text-stone-300 mb-4 block">
-          {"Type de livraison"} (نوع التوصيل) <span className="text-red-500">*</span>
-        </Label>
-        <Select  value={selectedDeliveryMethod || ""}
-          onValueChange={setSelectedDeliveryMethod}  required>
-            <SelectTrigger className="w-full focus:ring-rose-500 focus:border-rose-500">
-              <SelectValue placeholder="Sélectionner type de livraison" />
-            </SelectTrigger>
-            <SelectContent>
-            {[
-            {
-              id: "domicile",
-              name: "À domicile",
-              description: "Livraison à votre adresse",
-              cost: 400,
-            },
-            {
-              id: "stopdesk",
-              name: "StopDesk",
-              description: "Point de retrait",
-              cost: 200,
-              info: "Sélectionnez un point de retrait StopDesk près de chez vous après validation de la commande.",
-            },
-          ].map((method: any) => (
-                  <SelectItem value={method.id} id={method.id}  key={method.id}>
-                      <span className="font-semibold text-gray-800 dark:text-white">{method.name}</span> - {method.description}
-                <span className="block text-xs text-gray-800 dark:text-stone-400 mt-1">
-                  +{"DZ"} {deliveryPrices[method.id]|| "0.00"}
-                </span>
-                  </SelectItem>
-                ))}
-            </SelectContent>
-          </Select>
-      </div>
-      <div className="bg-stone-50 dark:bg-slate-800/50 p-4 rounded-xl">
-        <h4 className="font-semibold text-lg mb-4">Résumé de commande</h4>
-
-        <div className="flex gap-4 mb-4">
-          {/* Product Details - Left Side */}
-          <div className="flex-1 space-y-3">
-
-
-            {/* Color Selection Dropdown */}
-            <div>
-              <Label className="text-sm font-semibold mb-2 block">Couleur /اللون:</Label>
-              <Select value={selectedColor} onValueChange={setSelectedColor}>
-                <SelectTrigger className="w-full h-9 text-sm">
-                  <SelectValue placeholder="Sélectionner couleur" />
-                </SelectTrigger>
-                <SelectContent>
-                  {productData.colorImages.map((color: any) => (
-                    <SelectItem key={color.color} value={color.color}>
-                      {color.color}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </div>
-
-            {/* Size Selection Dropdown */}
-            <div>
-              <Label className="text-sm font-semibold mb-2 block">Pointure /المقاس:</Label>
-              <Select value={selectedSize} onValueChange={setSelectedSize}>
-                <SelectTrigger className="w-full h-9 text-sm">
-                  <SelectValue placeholder="Sélectionner pointure" />
-                </SelectTrigger>
-                <SelectContent>
-                  {["37", "38", "39", "40", "41"].map((size: string) => (
-                    <SelectItem key={size} value={size}>
-                      {size}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </div>
-
-            {/* Quantity Selection */}
-            <div>
-              <Label className="text-sm font-semibold mb-2 block">Quantité /الكمية:</Label>
-              <div className="flex items-center border border-stone-200 dark:border-stone-700 rounded-md w-24 overflow-hidden">
-                <Button
-                  type="button"
-                  variant="ghost"
-                  size="sm"
-                  className="h-7 w-7 rounded-none border-0 hover:bg-stone-100 dark:hover:bg-slate-700 p-0"
-                  onClick={() => handleQuantityChange(-1)}
-                >
-                  <LucideIcons.Minus className="w-3 h-3" />
-                </Button>
-                <div className="flex-1 text-center text-sm font-semibold py-1 px-1">{quantity}</div>
-                <Button
-                  type="button"
-                  variant="ghost"
-                  size="sm"
-                  className="h-7 w-7 rounded-none border-0 hover:bg-stone-100 dark:hover:bg-slate-700 p-0"
-                  onClick={() => handleQuantityChange(1)}
-                >
-                  <LucideIcons.Plus className="w-3 h-3" />
-                </Button>
-              </div>
-            </div>
-          </div>
-
-          {/* Product Image - Right Side */}
-          <div className="flex-shrink-0">
-            <div
-              className="w-20 h-20 bg-white dark:bg-slate-700 rounded-lg overflow-hidden cursor-zoom-in shadow-md hover:shadow-lg transition-all duration-300 group"
-              onClick={() => setIsImageZoomed(true)}
-            >
-              <Image
-                src={currentColorObj?.imageUrl || "/placeholder.svg"}
-                alt={`${productData.title} - ${selectedColor}`}
-                width={80}
-                height={80}
-                className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-300"
-              />
-            </div>
-          </div>
-        </div>
-      </div>
-      <div className="fixed bottom-0 left-0 w-full px-4 pb-4 z-50 bg-white dark:bg-slate-800 shadow-[0_-2px_10px_rgba(0,0,0,0.1)]">
-  {/* Horizontal Summary */}
-  <div className="flex justify-between text-sm font-semibold text-gray-700 dark:text-white border-b pb-2 mb-2">
-    <div className="flex flex-col items-start w-1/3">
-      <span className="text-m text-gray-500">سعر المنتج</span>
-      <span className="text-blue-700 dark:text-blue-400 text-lg">{productTotal} DZD</span>
-    </div>
-    <div className="flex flex-col items-center w-1/3">
-      <span className="text-m text-gray-500">سعر التوصيل</span>
-      <span className="text-blue-700 dark:text-blue-400 text-lg">
-        {shippingCost ? `${shippingCost} DZD` : "N/A"}
-      </span>
-    </div>
-    <div className="flex flex-col items-end w-1/3">
-      <span className="text-m font-bold text-red-600"> سعر الاجمالي (DZD)</span>
-      <span className="text-blue-700 dark:text-blue-400 text-lg">{grandTotal} DZD</span>
-    </div>
-  </div>
-
-  {/* Confirm Button */}
-  <Button
-    type="submit"
-    disabled={isSubmitting}
-    className="w-full bg-pink-500 hover:bg-pink-600 text-white py-3 text-sm font-bold rounded-lg transition-all duration-300"
-  >
-    {isSubmitting ? (
-      <>
-        <LucideIcons.Loader2 className="w-4 h-4 mr-2 animate-spin" />
-        Traitement...
-      </>
-    ) : (
-      <>CONFIRMER LA COMMANDE</>
-    )}
-  </Button>
-</div>
-{isImageZoomed && (
-        <div
-          className="fixed inset-0 bg-black bg-opacity-90 z-[100] flex items-center justify-center p-4"
-          onClick={() => setIsImageZoomed(false)}
-        >
-          <div className="relative max-w-2xl max-h-full">
-            <Button
-              variant="ghost"
-              size="icon"
-              className="absolute -top-12 right-0 text-white hover:bg-white/20 z-10"
-              onClick={() => setIsImageZoomed(false)}
-            >
-              <LucideIcons.X className="w-6 h-6" />
-            </Button>
-            <Image
-              src={currentColorObj?.imageUrl || "/placeholder.svg"}
-              alt={`${productData.title} - ${selectedColor}`}
-              width={600}
-              height={600}
-              className="max-w-full max-h-[80vh] object-contain rounded-lg"
-              onClick={(e) => e.stopPropagation()}
-            />
-          </div>
-        </div>
-      )}
-    </form>
-  )
+// Product Data Object
+const productDataa = {
+  title: "Spring Summer ice Silk Straight Leg Pants",
+  titleArabic: "بنطلون حريري مستقيم للربيع والصيف",
+  breadcrumb: "هذا المنتج يتم بيع مرة",
+  price: {
+    current: "3,200.00 د.ج",
+    original: "4,500.00 د.ج",
+    discount: "40%",
+  },
+  rating: {
+    stars: 0,
+    count: "0.00",
+  },
+  stock: {
+    available: false,
+    message: "غير متوفر",
+  },
+  options: {
+    size: "M",
+    color: "Noir",
+    quantity: 1,
+  },
+  form: {
+    phoneLabel: "رقم الهاتف",
+    nameLabel: "الاسم الكامل",
+    wilayaLabel: "الولاية",
+    communeLabel: "البلدية",
+    orderInstructions: "لإجراء طلب، يرجى إدخال التفاصيل:",
+    validation: {
+      nameRequired: "الاسم مطلوب",
+      phoneRequired: "رقم الهاتف مطلوب",
+      phoneInvalid: "رقم الهاتف غير صحيح (يجب أن يبدأ بـ 05، 06، 07، 2135، 2136، أو 2137)",
+      wilayaRequired: "الولاية مطلوبة",
+      communeRequired: "البلدية مطلوبة",
+    },
+  },
+  buttons: {
+    orderNow: "اشتر الآن - دفع عند الاستلام",
+    getItNow: "احصل عليه الآن",
+    login: "تسجيل دخول",
+  },
+  shipping: {
+    freeShipping: "الشحن مجاني",
+    freeShippingDesc: "لجميع أنحاء الجزائر",
+    returnPolicy: "استرداد خلال 30 يوم",
+    returnPolicyDesc: "ضمان استرداد الأموال",
+  },
+  navigation: {
+    account: "حسابك",
+    login: "دخول",
+    about: "عن",
+  },
+  tabs: {
+    return: {
+      label: "إرجاع",
+      content: "يمكنك إرجاع المنتج خلال 30 يوم من تاريخ الاستلام مع ضمان استرداد كامل للمبلغ.",
+    },
+    shipping: {
+      label: "الشحن",
+      content: "شحن مجاني لجميع أنحاء الجزائر. التسليم خلال 2-5 أيام عمل.",
+    },
+    guarantee: {
+      label: "ضمان",
+      content:
+        "ضمان استرداد أو استبدال مؤكد. هذا يعني أنك لست مضطر أو تغيير. مجرد أن يصل إليك الطرد الخاصة بك لتقييم جودته.",
+    },
+  },
+  additionalInfo:
+    "لقد تمت تجربة إرجاع سهلة بما فيه الكفاية والمشاكل والمشاكل في حالة أي إرجاع أو تغيير. منتج ليس بما جاء يؤدي بما اشتراك خلافة ويمكن بحماية استرداد مؤكد.",
+  promotion: {
+title: "عرض محدود! خصم 20%",
+description: "الكمية محدودة، سارع بالطلب قبل انتهاء العرض!",
+guarantee: "ضمان مؤكد على المنتج"
+  },
+  discountTimer: {
+    message: "خصم خاص ينتهي خلال:",
+    labels: {
+      days: "يوم",
+      hours: "ساعة",
+      minutes: "دقيقة",
+      seconds: "ثانية",
+    },
+  },
+  testimonials: {
+    title: "صور العملاء",
+    images: [
+      "https://firebasestorage.googleapis.com/v0/b/tullin-ecce0.firebasestorage.app/o/testimonials%2FWhatsApp%20Image%202025-07-01%20at%208.18.25%20PM.jpeg?alt=media&token=f4675141-096b-4490-803f-5120c9ab301c",
+      "https://firebasestorage.googleapis.com/v0/b/tullin-ecce0.firebasestorage.app/o/testimonials%2FWhatsApp%20Image%202025-07-01%20at%208.18.25%20PM%20(1).jpeg?alt=media&token=c6dc9dde-387d-4f89-8ec9-56294a99e643",
+      "https://firebasestorage.googleapis.com/v0/b/tullin-ecce0.firebasestorage.app/o/testimonials%2FWhatsApp%20Image%202025-07-01%20at%208.18.26%20PM.jpeg?alt=media&token=f232cc19-f25c-431d-a78c-22a84a245e66",
+      "https://firebasestorage.googleapis.com/v0/b/tullin-ecce0.firebasestorage.app/o/testimonials%2FWhatsApp%20Image%202025-07-01%20at%208.18.28%20PM.jpeg?alt=media&token=baba4adb-bc53-4c13-8c77-56b7d261b510",
+    ],
+  },
+  productImages: [
+    "/placeholder.svg?height=300&width=300",
+    "/placeholder.svg?height=300&width=300",
+    "/placeholder.svg?height=300&width=300",
+    "/placeholder.svg?height=300&width=300",
+    "/placeholder.svg?height=300&width=300",
+    "/placeholder.svg?height=300&width=300",
+    "/placeholder.svg?height=300&width=300",
+    "/placeholder.svg?height=300&width=300",
+    "/placeholder.svg?height=300&width=300",
+    "/placeholder.svg?height=300&width=300",
+    "/placeholder.svg?height=300&width=300",
+    "/placeholder.svg?height=300&width=300",
+    "/placeholder.svg?height=300&width=300",
+    "/placeholder.svg?height=300&width=300",
+    "/placeholder.svg?height=300&width=300",
+    "/placeholder.svg?height=300&width=300",
+    "/placeholder.svg?height=300&width=300",
+    "/placeholder.svg?height=300&width=300",
+  ],
 }
+
 export default function ProductPage() {
   const { productData, loading, error } = useProduct()
   const thumbnailContainerRef = useRef(null)
@@ -16155,7 +15930,58 @@ export default function ProductPage() {
   const [name, setName] = useState("")
   const [phone, setPhone] = useState("")
 
+const router = useRouter();
 const [lastSubmitTime, setLastSubmitTime] = useState<number | null>(null);
+const [activeTab, setActiveTab] = useState("guarantee")
+const [timeLeft, setTimeLeft] = useState({
+  days: 2,
+  hours: 15,
+  minutes: 51,
+  seconds: 54,
+})
+const [errors, setErrors] = useState({
+  name: "",
+  phone: "",
+  wilaya: "",
+  commune: "",
+})
+
+const colorKeywords = ["Noir", "Blanc", "Bleu", "blue", "white", "black", "rouge", "red", "green", "vert", "pink", "rose", "violet", "Orange", "gris", "gris clair", "Beige", "marron"]
+
+const sizeOptions = useMemo(() => {
+  if (!productData?.options || productData.options.length === 0) {
+    return ["37", "38", "39", "40", "41"]
+  }
+
+  const isColor = (name: string, values: string[]) => {
+    return values.some(value =>
+      colorKeywords.some(keyword =>
+        value.toLowerCase().includes(keyword)
+      )
+    )
+  }
+
+  const sizeOption = productData.options.find(option => !isColor(option.name, option.values))
+  return sizeOption?.values || ["37", "38", "39", "40", "41"]
+}, [productData])
+useEffect(() => {
+  const timer = setInterval(() => {
+    setTimeLeft((prev) => {
+      if (prev.seconds > 0) {
+        return { ...prev, seconds: prev.seconds - 1 }
+      } else if (prev.minutes > 0) {
+        return { ...prev, minutes: prev.minutes - 1, seconds: 59 }
+      } else if (prev.hours > 0) {
+        return { ...prev, hours: prev.hours - 1, minutes: 59, seconds: 59 }
+      } else if (prev.days > 0) {
+        return { ...prev, days: prev.days - 1, hours: 23, minutes: 59, seconds: 59 }
+      }
+      return prev
+    })
+  }, 1000)
+
+  return () => clearInterval(timer)
+}, [])
   const handleQuantityChange = (delta: number) => {
     setQuantity((prev) => Math.max(1, prev + delta))
   }
@@ -16391,8 +16217,10 @@ if (typeof window !== "undefined") {
 }
 
 }
-//router.push(`/thank-you?name=${encodeURIComponent(name)}&phone=${encodeURIComponent(phone)}&total=${grandTotal}`);
+const total = order.totalPrice;
 
+router.push(
+  `/thank-you?name=${encodeURIComponent(order.name)}&phone=${encodeURIComponent(order.phone)}&product=${encodeURIComponent(productData.productTitle)}&color=${encodeURIComponent(selectedColor)}&size=${encodeURIComponent(selectedSize)}&qty=${quantity}&price=${productData.priceAfter}&&shipping=${order.deliveryPrice}&total=${grandTotal}&delivery=${encodeURIComponent(order.deliveryType)}`);
  setShowThankYou(true)
 } catch (error) {
   console.error("Error adding document:", error)
@@ -16410,38 +16238,36 @@ if (typeof window !== "undefined") {
     }
   }
 
+
   return (
-    <div className="min-h-screen bg-stone-50 dark:bg-slate-900 text-slate-800 dark:text-stone-300">
-      <CountdownBanner />
-      <main className="container mx-auto px-4 py-12">
-        <div className="grid lg:grid-cols-2 gap-x-12 gap-y-8 max-w-7xl mx-auto">
-          
-        <div className="space-y-4 order-1 lg:order-1">
-              <p className="text-sm text-rose-600 dark:text-rose-400 uppercase tracking-wider font-semibold">
-                {productData.boutiqueName}
-              </p>
-              <h1 className="text-4xl font-bold text-gray-900 dark:text-white leading-tight">{productData.title}</h1>
-              <h1 className="text-4xl font-bold text-gray-900 dark:text-white leading-tight">
-                {productData.productTitle}
-              </h1>
-              <p className="text-gray-600 dark:text-stone-300 text-lg leading-relaxed hidden md:block">
-                Découvrez l'élégance et le confort avec nos mules sabots premium. Parfaites pour la femme moderne qui ne
-                veut pas choisir entre style et confort.
-              </p>
-            </div>
+    <div className="min-h-screen bg-white" dir="rtl">
+      {/* Header */}
+      <header className="bg-gradient-to-r from-yellow-300 to-yellow-400 px-4 py-3">
+        <div className="max-w-7xl mx-auto">
 
-
-            <div className="flex items-center gap-4 p-4 bg-stone-100 dark:bg-slate-800 rounded-xl order-2 lg:order-2">
-              <span className="text-lg text-gray-500 dark:text-stone-400 line-through">
-                DZ {productData.priceBefore}
-              </span>
-              <span className="text-3xl font-bold text-gray-900 dark:text-white">DZ {productData.priceAfter}</span>
-              <Badge className="inline-flex items-center whitespace-nowrap bg-rose-500 text-white px-3 py-1 text-sm">
-                En vente
-              </Badge>
+          {/* Discount timer row */}
+          <div className="text-center">
+            <div className="flex items-center justify-center gap-2 text-sm font-medium">
+              <span>🔥</span>
+              <span>{productDataa.discountTimer.message}</span>
+              <div className="flex items-center gap-1 bg-black/20 rounded px-2 py-1">
+                <span>{timeLeft.hours.toString().padStart(2, "0")}</span>
+                <span>:</span>
+                <span>{timeLeft.minutes.toString().padStart(2, "0")}</span>
+                <span>:</span>
+                <span>{timeLeft.seconds.toString().padStart(2, "0")}</span>
+              </div>
+              <span>⏰</span>
             </div>
+          </div>
+        </div>
+      </header>
+
+      {/* Main Content */}
+      <div className="max-w-7xl mx-auto px-4 py-8 pb-32">
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
           {/* Product Images */}
-          <div className="space-y-6 order-3 lg:order-3">
+          <div className="space-y-6 ">
             <div className="relative group">
               <div
                 className="aspect-square bg-white dark:bg-slate-800 rounded-2xl overflow-hidden cursor-zoom-in shadow-lg hover:shadow-xl transition-all duration-500"
@@ -16507,214 +16333,393 @@ if (typeof window !== "undefined") {
           </div>
 
           {/* Product Details */}
-          <div className="flex flex-col gap-8 order-4 lg:order-2">
+          <div className="order-2 lg:order-1 space-y-6">
+            {/* Breadcrumb */}
+           
+            {/* Product Title */}
+            <div className="space-y-2">
+              <h1 className="text-2xl font-bold text-gray-900">{productData.productTitle}</h1>
+            </div>
 
-
-
-            <div className="space-y-4 order-4 lg:order-5">
-              <Label className="text-lg font-semibold text-gray-900 dark:text-white">Couleur</Label>
-              <div className="flex flex-wrap gap-3">
-                {productData.colorImages.map((color: any, index) => (
-                  <Button
-                    key={color.color}
-                    variant={color.color === selectedColor ? "default" : "outline"}
-                    size="sm"
-                    className={`rounded-full px-4 py-2 transition-all duration-300 transform hover:scale-105 ${
-                      color.color === selectedColor
-                        ? "bg-slate-800 text-white border-slate-800 dark:bg-rose-600 dark:border-rose-600 shadow-lg"
-                        : "border-2 border-stone-300 dark:border-stone-600 hover:border-rose-400 dark:hover:border-rose-500 hover:bg-rose-50 dark:hover:bg-rose-900/20"
-                    }`}
-                    onClick={() => setSelectedColor(color.color)}
-                  >
-                    {color.color}
-                  </Button>
-                ))}
+            {/* Rating and Price */}
+            <div className="space-y-2">
+              <div className="flex items-center gap-3">
+                <span className="text-2xl font-bold text-gray-900">{productData.priceAfter}د.ج</span>
+                <span className="text-lg text-gray-400 line-through">{productData.priceBefore}د.ج</span>
               </div>
             </div>
 
-            <div className="space-y-4 order-5 lg:order-4">
-              <Label className="text-lg font-semibold text-gray-900 dark:text-white">Pointure</Label>
-              <div className="flex flex-wrap gap-3">
-                {["37", "38", "39", "40", "41"].map((size: string) => (
-                  <Button
-                    key={size}
-                    variant={size === selectedSize ? "default" : "outline"}
-                    size="sm"
-                    className={`rounded-full px-4 py-2 transition-all duration-300 transform hover:scale-105 ${
-                      size === selectedSize
-                        ? "bg-slate-800 text-white border-slate-800 dark:bg-rose-600 dark:border-rose-600 shadow-lg"
-                        : "border-2 border-stone-300 dark:border-stone-600 hover:border-rose-400 dark:hover:border-rose-500 hover:bg-rose-50 dark:hover:bg-rose-900/20"
-                    }`}
-                    onClick={() => setSelectedSize(size)}
-                  >
-                    {size}
-                  </Button>
-                ))}
-              </div>
-            </div>
+            {/* Purchase Options */}
+            <div className="space-y-4">
+              <p className="text-sm text-gray-600">{productDataa.form.orderInstructions}</p>
 
-            <div className="flex items-center justify-between order-5 lg:order-3">
-              <div className="flex items-center gap-2">
-                <div className="flex">
-                  {[...Array(5)].map((_, i) => (
-                    <LucideIcons.Star key={i} className="w-5 h-5 fill-amber-400 text-amber-400" />
-                  ))}
+              {/* Name Field */}
+              <div className="space-y-1">
+                <div className="flex items-center gap-3">
+               
+                  <Input
+                    placeholder={productDataa.form.nameLabel}
+                    className={`flex-1 text-right ${errors.name ? "border-red-500" : ""}`}
+                    required     value={name}
+                    onChange={(e) => setName(e.target.value)} 
+                  />
                 </div>
-                <span className="text-gray-600 dark:text-stone-300 font-medium">4.9 (127 avis)</span>
+                {errors.name && <p className="text-red-500 text-sm text-right">{errors.name}</p>}
               </div>
-              <SizeGuide />
+
+              {/* Phone Number Field */}
+              <div className="space-y-1">
+                <div className="flex items-center gap-3">
+                 
+      <Input
+  type="tel"
+  inputMode="numeric"
+  placeholder={productDataa.form.phoneLabel}
+  className={`flex-1 text-right ${errors.phone ? "border-red-500" : ""}`}
+  required
+  value={phone}
+  onChange={(e) => setPhone(e.target.value)}
+/>
+                </div>
+                {errors.phone && <p className="text-red-500 text-sm text-right">{errors.phone}</p>}
+              </div>
+
+              {/* Wilaya Select */}
+              <div className="space-y-1">
+                <div className="flex items-center gap-3">  
+                  <Select
+                   value={selectedProvince.toString()}
+                   onValueChange={(value) => {
+                     setSelectedProvince(value)
+                     setSelectedCommune("")
+                   }}
+                   required
+                  >
+                    <SelectTrigger className={`flex-1 text-right ${errors.wilaya ? "border-red-500" : ""}`}>
+                      <SelectValue placeholder={productDataa.form.wilayaLabel} />
+                    </SelectTrigger>
+                    <SelectContent>
+                    {wilayass.map((wilaya: any) => (
+                <SelectItem key={wilaya.id} value={wilaya.id.toString()}>
+                  {wilaya.id} - {wilaya.name}
+                </SelectItem>
+              ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+                {errors.wilaya && <p className="text-red-500 text-sm text-right">{errors.wilaya}</p>}
+              </div>
+
+              {/* Commune Select */}
+              <div className="space-y-1">
+                <div className="flex items-center gap-3">
+                 
+                  <Select value={selectedCommune} onValueChange={setSelectedCommune} disabled={!selectedProvince} required>
+                  <SelectTrigger className={`flex-1 text-right ${errors.commune ? "border-red-500" : ""}`}>
+                      <SelectValue placeholder={productDataa.form.communeLabel} />
+                    </SelectTrigger>
+                    <SelectContent>
+                    {comuness
+                .filter((commune) => commune.wilaya_id.toString() === selectedProvince)
+                .map((commune) => (
+                  <SelectItem key={commune.id} value={commune.name}>
+                    {commune.name}
+                  </SelectItem>
+                ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+                {errors.commune && <p className="text-red-500 text-sm text-right">{errors.commune}</p>}
+              </div>
+<div className="space-y-2">
+    <label className="block font-semibold text-right">نوع التوصيل</label>
+
+ <div className={`space-y-3 ${errors.commune ? "border border-red-500 rounded-xl p-3" : ""}`}>
+    {[
+            {
+              id: "domicile",
+               name: "التوصيل للمنزل",
+              description: "Livraison à votre adresse",
+              cost: 400,
+            },
+            {
+              id: "stopdesk",
+                name: "نقطة الاستلام (StopDesk)",
+              description: "Point de retrait",
+              cost: 200,
+              info: "Sélectionnez un point de retrait StopDesk près de chez vous après validation de la commande.",
+            },
+          ].map((method) => (
+ <label
+        key={method.id}
+        className={`flex items-start gap-2 cursor-pointer p-2 border rounded-lg transition text-sm hover:shadow-sm ${
+          selectedDeliveryMethod === method.id
+            ? "border-purple-600 ring-1 ring-purple-300"
+            : "border-gray-300 dark:border-gray-600"
+        }`}
+      >
+        <input
+          type="radio"
+          name="delivery"
+          value={method.id}
+          checked={selectedDeliveryMethod === method.id}
+          onChange={() => setSelectedDeliveryMethod(method.id)}
+          className="mt-1 accent-purple-600"
+          required
+        />
+        <div className="flex-1 text-right space-y-0.5">
+          <div className="font-semibold text-gray-900 dark:text-white">{method.name}</div>
+          <div className="text-xs mt-0.5 text-gray-700 dark:text-stone-300">+ دج {method.cost}</div>
+        </div>
+      </label>
+    ))}
+  </div>
+                {errors.commune && <p className="text-red-500 text-sm text-right">{errors.commune}</p>}
+              </div>
             </div>
 
-            {/* Order Now Button */}
-            <div className="fixed bottom-4 left-1/2 transform -translate-x-1/2 z-50">
-        <Sheet open={isOrderSheetOpen} onOpenChange={setIsOrderSheetOpen}>
-        <SheetTrigger asChild>
-  <Button className="w-full h-16 text-xl relative bg-gradient-to-r from-slate-800 to-slate-900 hover:from-slate-900 hover:to-black dark:from-rose-600 dark:to-rose-700 dark:hover:from-rose-700 dark:hover:to-rose-800 text-white px-8 font-bold rounded-full shadow-2xl transform transition-all duration-300 animate-bounce hover:scale-105 hover:shadow-3xl border-2 border-white/20">
-    <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent animate-shimmer rounded-full"></div>
-    <LucideIcons.ShoppingCart className="w-6 h-6 mr-3 animate-pulse" />
-    <span className="relative z-10">Commander maintenant</span>
-    <div className="absolute -top-1 -right-1 w-4 h-4 bg-red-500 rounded-full animate-ping"></div>
-    <div className="absolute -top-1 -right-1 w-4 h-4 bg-red-500 rounded-full"></div>
-  </Button>
-</SheetTrigger>
-          <SheetContent className="w-full sm:max-w-lg p-0">
-  <div className="relative flex flex-col h-full">
-    {/* Scrollable main content */}
-    <div className="overflow-y-auto flex-1 px-4 pb-36">
-      <SheetHeader>
-      <SheetTitle>إتمام الطلب</SheetTitle>
-<SheetDescription>
-يرجى ملء معلوماتك لتأكيد الطلب
-</SheetDescription>
-      </SheetHeader>
+            <div className="bg-stone-50 dark:bg-slate-800/50 p-4 rounded-xl">
+        <h4 className="font-semibold text-lg mb-4">Résumé de commande</h4>
 
-      <div className="mt-6">
-        <OrderSheet
-          productData={productData}
-          selectedColor={selectedColor}
-          selectedSize={selectedSize}
-          quantity={quantity}
-          onQuantityChange={handleQuantityChange}
-          onSubmit={handleFormSubmit}
-          deliveryPrices={deliveryPrices}
-          selectedProvince={selectedProvince}
-          setSelectedProvince={setSelectedProvince}
-          selectedCommune={selectedCommune}
-          setSelectedCommune={setSelectedCommune}
-          setSelectedColor={setSelectedColor}
-          setSelectedSize={setSelectedSize}
-          handleQuantityChange={handleQuantityChange}
-          name={name}
-          setName={setName}
-          phone={phone}
-          setPhone={setPhone}
-          selectedDeliveryMethod={selectedDeliveryMethod}
-          setSelectedDeliveryMethod={setSelectedDeliveryMethod}
-        />
+        <div className="flex gap-4 mb-4">
+          {/* Product Details - Left Side */}
+          <div className="flex-1 space-y-3">
+
+
+            {/* Color Selection Dropdown */}
+            <div>
+              <Label className="text-sm font-semibold mb-2 block">Couleur /اللون:</Label>
+              <Select value={selectedColor} onValueChange={setSelectedColor}>
+                <SelectTrigger className="w-full h-9 text-sm">
+                  <SelectValue placeholder="Sélectionner couleur" />
+                </SelectTrigger>
+                <SelectContent>
+                  {productData.colorImages.map((color: any) => (
+                    <SelectItem key={color.color} value={color.color}>
+                      {color.color}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+
+            {/* Size Selection Dropdown */}
+            <div>
+              <Label className="text-sm font-semibold mb-2 block">Pointure /المقاس:</Label>
+              <Select value={selectedSize} onValueChange={setSelectedSize}>
+                <SelectTrigger className="w-full h-9 text-sm">
+                  <SelectValue placeholder="Sélectionner pointure" />
+                </SelectTrigger>
+                <SelectContent>
+                  {sizeOptions.map((size: string) => (
+                    <SelectItem key={size} value={size}>
+                      {size}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+
+            {/* Quantity Selection */}
+            <div>
+              <Label className="text-sm font-semibold mb-2 block">Quantité /الكمية:</Label>
+              <div className="flex items-center border border-stone-200 dark:border-stone-700 rounded-md w-24 overflow-hidden">
+                <Button
+                  type="button"
+                  variant="ghost"
+                  size="sm"
+                  className="h-7 w-7 rounded-none border-0 hover:bg-stone-100 dark:hover:bg-slate-700 p-0"
+                  onClick={() => handleQuantityChange(-1)}
+                >
+                  <LucideIcons.Minus className="w-3 h-3" />
+                </Button>
+                <div className="flex-1 text-center text-sm font-semibold py-1 px-1">{quantity}</div>
+                <Button
+                  type="button"
+                  variant="ghost"
+                  size="sm"
+                  className="h-7 w-7 rounded-none border-0 hover:bg-stone-100 dark:hover:bg-slate-700 p-0"
+                  onClick={() => handleQuantityChange(1)}
+                >
+                  <LucideIcons.Plus className="w-3 h-3" />
+                </Button>
+              </div>
+            </div>
+          </div>
+
+          {/* Product Image - Right Side */}
+          <div className="flex-shrink-0">
+            <div
+              className="w-20 h-20 bg-white dark:bg-slate-700 rounded-lg overflow-hidden cursor-zoom-in shadow-md hover:shadow-lg transition-all duration-300 group"
+              onClick={() => setIsZoomed(true)}
+            >
+              <Image
+                src={currentColorObj?.imageUrl || "/placeholder.svg"}
+                alt={`${productData.title} - ${selectedColor}`}
+                width={80}
+                height={80}
+                className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-300"
+              />
+            </div>
+          </div>
+        </div>
       </div>
+            {/* Purchase Button */}
+            <Button
+              id="main-order-button"
+                  type="submit"
+              className={`w-full py-3 text-lg rounded-full ${ "bg-purple-500 hover:bg-purple-600 text-white"}`}
+              disabled={isSubmitting}
+              onClick={handleFormSubmit}
+       
+            >
+              {isSubmitting ? (
+      <>
+        <LucideIcons.Loader2 className="w-4 h-4 mr-2 animate-spin" />
+        Traitement...
+      </>
+    ) : (
+      <> {productDataa.buttons.orderNow}</>
+    )}
+             
+            </Button>
 
-   
-    </div>
-
-    {/* Fixed bottom bar */}
-    <div className="fixed bottom-0 left-0 w-full px-4 pb-5 bg-white dark:bg-slate-900 shadow-md z-50">
-      <Button
-        type="submit"
-        onClick={handleFormSubmit}
-        className="w-full bg-pink-600 hover:bg-pink-700 text-white font-bold py-4 rounded-xl text-center text-base"
-        //disabled={isSubmitting || (lastSubmitTime && Date.now() - lastSubmitTime < 40000)}
-      >
-        CONFIRMER LA COMMANDE - DZ {grandTotal}
-      </Button>
-    </div>
-  </div>
-</SheetContent>
-        </Sheet>
-      </div>
+            {/* Shipping Info */}
+            <div className="grid grid-cols-2 gap-4 pt-4 border-t">
+              <div className="flex items-center gap-3">
+                <div className="w-10 h-10 bg-gray-100 rounded-full flex items-center justify-center">
+                  <LucideIcons.Truck className="w-5 h-5 text-gray-600" />
+                </div>
+                <div className="text-sm">
+                  <div className="font-medium">{productDataa.shipping.freeShipping}</div>
+                  <div className="font-medium">{productDataa.shipping.freeShippingDesc}</div>
+                </div>
+              </div>
+            </div>
           </div>
         </div>
 
-        <section className="mt-20 py-20 bg-gradient-to-br from-stone-100 to-rose-50 dark:from-slate-800 dark:to-rose-900/40 rounded-3xl overflow-hidden">
-          <div className="max-w-6xl mx-auto px-6">
-            <div className="text-center mb-16">
-              <h2 className="text-4xl font-bold text-gray-900 dark:text-white mb-4">Pourquoi choisir nos mules ?</h2>
-              <p className="text-gray-600 dark:text-stone-300 text-lg max-w-2xl mx-auto">
-                Découvrez ce qui rend nos chaussures si spéciales et pourquoi des milliers de femmes nous font
-                confiance.
-              </p>
+ {productData?.promoImages?.map((url, index) => (
+      <img
+        key={index}
+        src={url}
+        alt={`Promo ${index + 1}`}
+        className="w-full mb-4 rounded-xl shadow-md mt-8"
+      />
+    ))}
+
+
+        {/* Promotional Banner */}
+        <div className="relative bg-gradient-to-r from-purple-900 to-purple-800 rounded-2xl overflow-hidden text-white text-center py-12 px-6 mt-8">
+          <div className="relative z-10">
+            <div className="mb-6">
+              <Image
+                src={currentColorObj.imageUrl}
+                alt="White pants promotional"
+                width={150}
+                height={200}
+                className="mx-auto rounded-lg"
+              />
             </div>
-            <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-8">
-              {productData.whyChooseUs.map((feature: any, index: number) => {
-                const Icon = (LucideIcons as any)[feature.icon] || LucideIcons.Sparkles
-                return (
-                  <div
-                    key={index}
-                    className="group opacity-0 animate-fade-in-up"
-                    style={{
-                      animationDelay: feature.delay,
-                      animationFillMode: "forwards",
-                    }}
-                  >
-                    <Card className="border-0 shadow-lg hover:shadow-2xl transition-all duration-500 transform hover:-translate-y-2 bg-white/90 dark:bg-slate-800/60 backdrop-blur-sm overflow-hidden h-full">
-                      <div className="relative overflow-hidden">
-                        <Image
-                          src={feature.image || "/placeholder.svg"}
-                          alt={feature.title}
-                          width={300}
-                          height={200}
-                          className="w-full h-48 object-cover transition-transform duration-700 group-hover:scale-110"
-                        />
-                        <div className="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
-                      </div>
-                      <CardContent className="p-6 text-center">
-                        <div className="mb-4 flex justify-center">
-                          <div className="p-3 bg-stone-100 dark:bg-slate-700 rounded-full group-hover:bg-rose-100 dark:group-hover:bg-rose-900/50 transition-colors duration-300">
-                            <Icon className="w-6 h-6 text-rose-500 dark:text-rose-400" />
-                          </div>
-                        </div>
-                        <h3 className="text-xl font-semibold text-gray-900 dark:text-white mb-3 group-hover:text-rose-600 dark:group-hover:text-rose-400 transition-colors duration-300">
-                          {feature.title}
-                        </h3>
-                        <p className="text-gray-600 dark:text-stone-300 leading-relaxed">{feature.description}</p>
-                      </CardContent>
-                    </Card>
-                  </div>
-                )
-              })}
+
+            <h2 className="text-2xl font-bold mb-4">{productDataa.promotion.title}</h2>
+            <p className="text-purple-200 mb-6">{productDataa.promotion.description}</p>
+
+            {/* Countdown Timer */}
+            <div className="flex justify-center gap-4 mb-8">
+              <div className="bg-black/30 rounded-full w-16 h-16 flex flex-col items-center justify-center">
+                <span className="text-xl font-bold">{timeLeft.days.toString().padStart(2, "0")}</span>
+                <span className="text-xs">{productDataa.discountTimer.labels.days}</span>
+              </div>
+              <div className="bg-black/30 rounded-full w-16 h-16 flex flex-col items-center justify-center">
+                <span className="text-xl font-bold">{timeLeft.hours.toString().padStart(2, "0")}</span>
+                <span className="text-xs">{productDataa.discountTimer.labels.hours}</span>
+              </div>
+              <div className="bg-black/30 rounded-full w-16 h-16 flex flex-col items-center justify-center">
+                <span className="text-xl font-bold">{timeLeft.minutes.toString().padStart(2, "0")}</span>
+                <span className="text-xs">{productDataa.discountTimer.labels.minutes}</span>
+              </div>
+              <div className="bg-black/30 rounded-full w-16 h-16 flex flex-col items-center justify-center">
+                <span className="text-xl font-bold">{timeLeft.seconds.toString().padStart(2, "0")}</span>
+                <span className="text-xs">{productDataa.discountTimer.labels.seconds}</span>
+              </div>
             </div>
+
+            <Button className="bg-purple-500 hover:bg-purple-400 text-white px-12 py-3 rounded-full text-lg font-medium">
+              {productDataa.buttons.getItNow}
+            </Button>
+
+            <p className="text-purple-200 text-sm mt-4">{productDataa.promotion.guarantee}</p>
           </div>
-        </section>
+        </div>
 
-        <section className="mt-20 py-16">
-          <div className="max-w-6xl mx-auto px-6">
-            <h2 className="text-3xl font-bold text-center text-gray-900 dark:text-white mb-12">Avis de nos clientes</h2>
-            <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
-              {productData.testimonials
-                .filter((testimonial: any) => testimonial.reviewImage)
-                .map((testimonial: any, index: number) => (
-                  <div
-                    key={index}
-                    className="group relative aspect-square rounded-lg overflow-hidden cursor-zoom-in shadow-lg hover:shadow-xl transition-all duration-300"
-                    onClick={() => handleImageZoom(testimonial.reviewImage)}
-                  >
-                    <Image
-                      src={testimonial.reviewImage || "/placeholder.svg"}
-                      alt={`Avis client ${index + 1}`}
-                      fill
-                      className="object-cover w-full h-full group-hover:scale-105 transition-transform duration-500"
-                    />
-                    <div className="absolute inset-0 bg-black/20 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
-                      <LucideIcons.ZoomIn className="w-8 h-8 text-white" />
-                    </div>
-                  </div>
-                ))}
-            </div>
+        {/* Customer Images Section */}
+        <div className="mt-12">
+          <h2 className="text-2xl font-bold text-center mb-8">{productDataa.testimonials.title}</h2>
+
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+            {productData?.testimonials.map((image, index) => (
+              <div key={index} className="aspect-square bg-gray-100 rounded-lg overflow-hidden">
+                <Image
+                  src={image.reviewImage || "/placeholder.svg"}
+                  alt={`Customer photo ${index + 1}`}
+                  width={200}
+                  height={200}
+                  className="w-full h-full object-cover hover:scale-105 transition-transform duration-300"
+                />
+              </div>
+            ))}
           </div>
-        </section>
+        </div>
+      </div>
 
-        <Faq />
+      {/* Always Visible Bottom Order Button */}
+      <div className="fixed bottom-0 left-0 right-0 bg-white border-t shadow-lg p-4 z-50">
+        <div className="max-w-md mx-auto">
+        <div className="flex justify-between text-sm font-semibold text-gray-700 dark:text-white border-b pb-2 mb-2">
+    <div className="flex flex-col items-start w-1/3">
+      <span className="text-m text-gray-500">سعر المنتج</span>
+      <span className="text-blue-700 dark:text-blue-400 text-lg">{productTotal} د.ج</span>
+    </div>
+    <div className="flex flex-col items-center w-1/3">
+      <span className="text-m text-gray-500">سعر التوصيل</span>
+      <span className="text-blue-700 dark:text-blue-400 text-lg">
+        {shippingCost ? `${shippingCost} د.ج` : "N/A"}
+      </span>
+    </div>
+    <div className="flex flex-col items-end w-1/3">
+      <span className="text-m font-bold text-red-600"> سعر الاجمالي (د.ج)</span>
+      <span className="text-blue-700 dark:text-blue-400 text-lg">{grandTotal} د.ج</span>
+    </div>
+  </div>
+        <Button
+  className={`
+    w-full py-3 rounded-full 
+    bg-purple-500 hover:bg-purple-600 text-white 
+    transition-all duration-300 
+    animate-bounceOnce 
+    shadow-lg hover:shadow-xl
+  `}
+  onClick={handleFormSubmit}
+  type="submit"
+  disabled={isSubmitting}
+>
+  {isSubmitting ? (
+    <>
+      <LucideIcons.Loader2 className="w-4 h-4 mr-2 animate-spin" />
+      جاري المعالجة...
+    </>
+  ) : (
+    <>{productDataa.buttons.orderNow}</>
+  )}
+</Button>
+        </div>
+      </div>
 
-        {isZoomed && (
+
+      <Footer facebookUrl={productData.facebookUrl} instagramUrl={productData.instagramUrl} />
+      <WhatsAppButton />
+              {isZoomed && (
           <div
             className="fixed inset-0 bg-black bg-opacity-90 z-50 flex items-center justify-center p-4"
             onClick={() => setIsZoomed(false)}
@@ -16739,28 +16744,23 @@ if (typeof window !== "undefined") {
             </div>
           </div>
         )}
-      </main>
-
-      <Footer facebookUrl={productData.facebookUrl} instagramUrl={productData.instagramUrl} />
-      <WhatsAppButton />
-      <ThankYouModal isOpen={showThankYou} onClose={() => setShowThankYou(false)} />
       <div className="h-24"></div>
 
-      <style jsx>{`
-        @keyframes fade-in-up {
-          from {
-            opacity: 0;
-            transform: translateY(30px);
-          }
-          to {
-            opacity: 1;
-            transform: translateY(0);
-          }
-        }
-        .animate-fade-in-up {
-          animation: fade-in-up 0.8s ease-out;
-        }
-      `}</style>
+<style jsx>{`
+  @keyframes fade-in-up {
+    from {
+      opacity: 0;
+      transform: translateY(30px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+  .animate-fade-in-up {
+    animation: fade-in-up 0.8s ease-out;
+  }
+`}</style>
     </div>
   )
 }

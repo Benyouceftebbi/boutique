@@ -6,9 +6,39 @@ body {
   font-family: Arial, Helvetica, sans-serif;
 }
 
+/* RTL Support */
+[dir="rtl"] {
+  direction: rtl;
+}
+
+[dir="rtl"] .grid {
+  direction: rtl;
+}
+
+/* Custom Arabic font support */
+@import url("https://fonts.googleapis.com/css2?family=Noto+Sans+Arabic:wght@400;500;600;700&display=swap");
+
+[dir="rtl"] {
+  font-family: "Noto Sans Arabic", sans-serif;
+}
+
 @layer utilities {
   .text-balance {
     text-wrap: balance;
+  }
+
+  /* Hide scrollbar for horizontal scroll */
+  .scrollbar-hide {
+    -ms-overflow-style: none; /* Internet Explorer 10+ */
+    scrollbar-width: none; /* Firefox */
+  }
+  .scrollbar-hide::-webkit-scrollbar {
+    display: none; /* Safari and Chrome */
+  }
+
+  /* Smooth scrolling for horizontal scroll */
+  .overflow-x-auto {
+    scroll-behavior: smooth;
   }
 }
 
