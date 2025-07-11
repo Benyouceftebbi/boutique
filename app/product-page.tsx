@@ -15946,24 +15946,29 @@ const [errors, setErrors] = useState({
   commune: "",
 })
 
-const colorKeywords = ["Noir", "Blanc", "Bleu", "blue", "white", "black", "rouge", "red", "green", "vert", "pink", "rose", "violet", "Orange", "gris", "gris clair", "Beige", "marron"]
 
 const sizeOptions = useMemo(() => {
   if (!productData?.options || productData.options.length === 0) {
-    return ["37", "38", "39", "40", "41"]
+    return ["37", "38", "39", "40", "41"];
   }
 
-  const isColor = (name: string, values: string[]) => {
-    return values.some(value =>
+  const colorKeywords = ["noir", "blanc", "bleu", "rouge", "vert", "jaune", "orange", "gris", "rose", "marron"];
+
+  const isColorOption = (option: { name: string; values: string[] }) => {
+    const nameLower = option.name.toLowerCase();
+    if (nameLower.includes("couleur") || nameLower.includes("color")) return true;
+
+    return option.values.some(value =>
       colorKeywords.some(keyword =>
         value.toLowerCase().includes(keyword)
       )
-    )
-  }
+    );
+  };
 
-  const sizeOption = productData.options.find(option => !isColor(option.name, option.values))
-  return sizeOption?.values || ["37", "38", "39", "40", "41"]
-}, [productData])
+  const sizeOption = productData.options.find(option => !isColorOption(option));
+
+  return sizeOption?.values || ["37", "38", "39", "40", "41"];
+}, [productData]);
 useEffect(() => {
   const timer = setInterval(() => {
     setTimeLeft((prev) => {
@@ -15985,13 +15990,39 @@ useEffect(() => {
   const handleQuantityChange = (delta: number) => {
     setQuantity((prev) => Math.max(1, prev + delta))
   }
-  useEffect(() => {
-    if (productData) {
-      setSelectedSize(productData.variants[0].option1)
-      setSelectedColor(productData.variants[0].option2)
-      setSelectedDeliveryMethod("domicile")
+useEffect(() => {
+  if (!productData) return;
+
+  const colorKeywords = ["noir", "blanc", "bleu", "rouge", "vert", "jaune", "orange", "gris", "rose", "marron"];
+
+  const isColor = (value: string) => 
+    colorKeywords.some(keyword => value.toLowerCase().includes(keyword));
+
+  const firstVariant = productData.variants?.[0];
+
+  let size = "";
+  let color = "";
+
+  if (firstVariant) {
+    const { option1, option2 } = firstVariant;
+
+    if (isColor(option1)) {
+      color = option1;
+      size = option2;
+    } else if (isColor(option2)) {
+      color = option2;
+      size = option1;
+    } else {
+      // Fallback if no color detected
+      size = option1;
+      color = option2;
     }
-  }, [productData])
+  }
+
+  setSelectedSize(size);
+  setSelectedColor(color);
+  setSelectedDeliveryMethod("domicile");
+}, [productData]);
 useEffect(() => {
   const fetchDeliveryPrices = async () => {
     if (!selectedProvince) return;
@@ -16025,9 +16056,14 @@ const wilayaId = selectedProvince.toString().padStart(2, "0");
       </div>
     )
   }
-
-  const currentColorObj =
-    productData.colorImages.find((color: any) => color.color === selectedColor) || productData.variants[0].option2
+const currentColorObj =
+  productData.colorImages.find((color: any) =>
+    color.color === selectedColor
+  ) ||
+  productData.variants.find(
+    (variant: any) =>
+      variant.option1 === selectedColor || variant.option2 === selectedColor
+  );
 
  const productTotal = productData.priceAfter * quantity
   const shippingCost = deliveryPrices[selectedDeliveryMethod]|| 0
@@ -16271,10 +16307,10 @@ router.push(
             <div className="relative group">
               <div
                 className="aspect-square bg-white dark:bg-slate-800 rounded-2xl overflow-hidden cursor-zoom-in shadow-lg hover:shadow-xl transition-all duration-500"
-                onClick={() => handleImageZoom(currentColorObj.imageUrl)}
+                onClick={() => handleImageZoom(currentColorObj?.imageUrl)}
               >
                 <Image
-                  src={currentColorObj.imageUrl || "/placeholder.svg"}
+                  src={currentColorObj?.imageUrl || "/placeholder.svg"}
                   alt={`${productData.title} - ${selectedColor}`}
                   width={600}
                   height={600}
@@ -16304,14 +16340,14 @@ router.push(
                 <LucideIcons.ChevronLeft className="h-4 w-4" />
               </Button>
               <div ref={thumbnailContainerRef} className="flex overflow-x-auto gap-3 py-2 px-12 scrollbar-hide">
-                {productData.colorImages.map((thumbnail: any, index: number) => (
+                {productData?.colorImages.map((thumbnail: any, index: number) => (
                   <div
                     key={index}
                     className="aspect-square w-1/4 flex-shrink-0 bg-white dark:bg-slate-800 rounded-xl overflow-hidden cursor-pointer shadow-md hover:shadow-lg transition-all duration-300 transform hover:scale-105"
-                    onClick={() => handleImageZoom(thumbnail.imageUrl || "/placeholder.svg")}
+                    onClick={() => handleImageZoom(thumbnail?.imageUrl || "/placeholder.svg")}
                   >
                     <Image
-                      src={thumbnail.imageUrl || "/placeholder.svg"}
+                      src={thumbnail?.imageUrl? thumbnail?.imageUrl: "/placeholder.svg"}
                       alt={`${selectedColor} variant ${index + 1}`}
                       width={150}
                       height={150}
@@ -16469,7 +16505,7 @@ router.push(
         />
         <div className="flex-1 text-right space-y-0.5">
           <div className="font-semibold text-gray-900 dark:text-white">{method.name}</div>
-          <div className="text-xs mt-0.5 text-gray-700 dark:text-stone-300">+ دج {method.cost}</div>
+          <div className="text-xs mt-0.5 text-gray-700 dark:text-stone-300">+ دج {deliveryPrices[method.id]}</div>
         </div>
       </label>
     ))}
@@ -16614,7 +16650,7 @@ router.push(
           <div className="relative z-10">
             <div className="mb-6">
               <Image
-                src={currentColorObj.imageUrl}
+                src={currentColorObj?.imageUrl}
                 alt="White pants promotional"
                 width={150}
                 height={200}
