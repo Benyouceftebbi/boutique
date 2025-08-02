@@ -15929,6 +15929,7 @@ export default function ProductPage() {
   const [isOrderSheetOpen, setIsOrderSheetOpen] = useState(false)
   const [name, setName] = useState("")
   const [phone, setPhone] = useState("")
+  const [showStickyBar, setShowStickyBar] = useState(false);
 
 const router = useRouter();
 const [lastSubmitTime, setLastSubmitTime] = useState<number | null>(null);
@@ -15946,7 +15947,20 @@ const [errors, setErrors] = useState({
   commune: "",
 })
 
+useEffect(() => {
+  const handleScroll = () => {
+    const button = document.getElementById("main-order-button");
+    if (!button) return;
 
+    const buttonBottom = button.getBoundingClientRect().bottom;
+    const isBelow = buttonBottom < 0;
+
+    setShowStickyBar(isBelow);
+  };
+
+  window.addEventListener("scroll", handleScroll);
+  return () => window.removeEventListener("scroll", handleScroll);
+}, []);
 const sizeOptions = useMemo(() => {
   if (!productData?.options || productData.options.length === 0) {
     return ["37", "38", "39", "40", "41"];
@@ -16274,7 +16288,6 @@ router.push(
     }
   }
 
-
   return (
     <div className="min-h-screen bg-white" dir="rtl">
       {/* Header */}
@@ -16372,22 +16385,102 @@ router.push(
           <div className="order-2 lg:order-1 space-y-6">
             {/* Breadcrumb */}
            
-            {/* Product Title */}
-            <div className="space-y-2">
-              <h1 className="text-2xl font-bold text-gray-900">{productData.productTitle}</h1>
-            </div>
+           
+      {/* Rating */}
+      <div className="flex items-center gap-2 mb-2">
+        <div className="flex items-center gap-0.5">
+          {[1, 2, 3, 4, 5].map((star) => (
+            <LucideIcons.Star key={star} className="w-4 h-4 fill-green-500 text-green-500" />
+          ))}
+        </div>
+        <span className="text-sm font-medium text-gray-900">4.5 sur 5 basé sur 2137 avis</span>
+      </div>
 
-            {/* Rating and Price */}
-            <div className="space-y-2">
-              <div className="flex items-center gap-3">
-                <span className="text-2xl font-bold text-gray-900">{productData.priceAfter}د.ج</span>
-                <span className="text-lg text-gray-400 line-through">{productData.priceBefore}د.ج</span>
-              </div>
-            </div>
+      {/* Product Title */}
+      <div className="mb-4">
+        <h1 className="text-xl font-bold text-gray-900 leading-tight">
+          TALLIN | {productData.productTitle}
+          <br />
+          
+        </h1>
+      </div>
+
+      {/* Price */}
+      <div className="flex items-center gap-3 mb-6">
+        <span className="text-lg text-gray-400 line-through">{productData.priceBefore}د.ج</span>
+        <span className="text-2xl font-bold text-red-600">{productData.priceAfter}د.ج</span>
+        <span className="bg-green-500 text-white text-xs font-medium px-2 py-1 rounded-full">50%</span>
+      </div>
+
+      {/* Color Selection */}
+      <div className="space-y-3 mb-6">
+        <div className="flex items-center gap-2">
+          <span className="text-sm text-gray-700">Couleur /اللون:</span>
+          <span className="text-sm text-gray-400">—</span>
+          <span className="text-sm font-medium text-gray-900">{selectedColor}</span>
+        </div>
+        <div className="flex flex-wrap gap-2">
+          {productData.colorImages.map((color, index) => (
+            <button
+              key={color.color}
+              onClick={() => setSelectedColor(color.color)}
+              className={`w-12 h-12 rounded-full overflow-hidden border-2 transition-all ${
+                selectedColor === color.color ? "border-black border-[3px]" : "border-gray-200"
+              }`}
+            >
+              <img src={color.imageUrl || "/placeholder.svg"} alt={color.color} className="w-full h-full object-cover" />
+            </button>
+          ))}
+        </div>
+      </div>
+
+      {/* Size Selection */}
+      <div className="space-y-3">
+        <div className="flex items-center justify-between">
+          <span className="text-sm text-gray-700">Pointure /المقاس:</span>
+          <button className="flex items-center gap-1 text-sm text-gray-600 hover:text-gray-800">
+            <LucideIcons.ExternalLink className="w-4 h-4" />
+            <span className="underline">Guide des tailles</span>
+          </button>
+        </div>
+        <div className="grid grid-cols-4 gap-2">
+          {sizeOptions.map((size) => (
+            <button
+              key={size}
+              onClick={() => setSelectedSize(size)}
+              className={`h-10 border text-sm font-medium transition-all ${
+                selectedSize === size
+                  ? "bg-black text-white border-black"
+                  : "bg-white text-gray-700 border-gray-300 hover:border-gray-400"
+              }`}
+            >
+              {size}
+            </button>
+          ))}
+        </div>
+      </div>
+      <div className="space-y-3 mt-6">
+        <span className="text-sm text-gray-700">Quantité /الكمية:</span>
+        <div className="flex items-center gap-3">
+          <button
+            onClick={() => setQuantity(Math.max(1, quantity - 1))}
+            className="w-10 h-10 border border-gray-300 bg-white text-gray-700 hover:border-gray-400 transition-all flex items-center justify-center text-lg font-medium"
+          >
+            −
+          </button>
+          <span className="text-lg font-medium text-gray-900 min-w-[2rem] text-center">{quantity}</span>
+          <button
+            onClick={() => setQuantity(quantity + 1)}
+            className="w-10 h-10 border border-gray-300 bg-white text-gray-700 hover:border-gray-400 transition-all flex items-center justify-center text-lg font-medium"
+          >
+            +
+          </button>
+        </div>
+      </div>
 
             {/* Purchase Options */}
             <div className="space-y-4">
-              <p className="text-sm text-gray-600">{productDataa.form.orderInstructions}</p>
+              <p className="text-sm text-gray-800">{productDataa.form.orderInstructions}</p>
 
               {/* Name Field */}
               <div className="space-y-1">
@@ -16395,7 +16488,8 @@ router.push(
                
                   <Input
                     placeholder={productDataa.form.nameLabel}
-                    className={`flex-1 text-right ${errors.name ? "border-red-500" : ""}`}
+                    
+                    className={`flex-1 text-right placeholder:text-gray-700 ${errors.name ? "border-red-500" : ""}`}
                     required     value={name}
                     onChange={(e) => setName(e.target.value)} 
                   />
@@ -16411,7 +16505,7 @@ router.push(
   type="tel"
   inputMode="numeric"
   placeholder={productDataa.form.phoneLabel}
-  className={`flex-1 text-right ${errors.phone ? "border-red-500" : ""}`}
+  className={`flex-1 text-right placeholder:text-gray-700 ${errors.phone ? "border-red-500" : ""}`}
   required
   value={phone}
   onChange={(e) => setPhone(e.target.value)}
@@ -16513,93 +16607,6 @@ router.push(
                 {errors.commune && <p className="text-red-500 text-sm text-right">{errors.commune}</p>}
               </div>
             </div>
-
-            <div className="bg-stone-50 dark:bg-slate-800/50 p-4 rounded-xl">
-        <h4 className="font-semibold text-lg mb-4">Résumé de commande</h4>
-
-        <div className="flex gap-4 mb-4">
-          {/* Product Details - Left Side */}
-          <div className="flex-1 space-y-3">
-
-
-            {/* Color Selection Dropdown */}
-            <div>
-              <Label className="text-sm font-semibold mb-2 block">Couleur /اللون:</Label>
-              <Select value={selectedColor} onValueChange={setSelectedColor}>
-                <SelectTrigger className="w-full h-9 text-sm">
-                  <SelectValue placeholder="Sélectionner couleur" />
-                </SelectTrigger>
-                <SelectContent>
-                  {productData.colorImages.map((color: any) => (
-                    <SelectItem key={color.color} value={color.color}>
-                      {color.color}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </div>
-
-            {/* Size Selection Dropdown */}
-            <div>
-              <Label className="text-sm font-semibold mb-2 block">Pointure /المقاس:</Label>
-              <Select value={selectedSize} onValueChange={setSelectedSize}>
-                <SelectTrigger className="w-full h-9 text-sm">
-                  <SelectValue placeholder="Sélectionner pointure" />
-                </SelectTrigger>
-                <SelectContent>
-                  {sizeOptions.map((size: string) => (
-                    <SelectItem key={size} value={size}>
-                      {size}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </div>
-
-            {/* Quantity Selection */}
-            <div>
-              <Label className="text-sm font-semibold mb-2 block">Quantité /الكمية:</Label>
-              <div className="flex items-center border border-stone-200 dark:border-stone-700 rounded-md w-24 overflow-hidden">
-                <Button
-                  type="button"
-                  variant="ghost"
-                  size="sm"
-                  className="h-7 w-7 rounded-none border-0 hover:bg-stone-100 dark:hover:bg-slate-700 p-0"
-                  onClick={() => handleQuantityChange(-1)}
-                >
-                  <LucideIcons.Minus className="w-3 h-3" />
-                </Button>
-                <div className="flex-1 text-center text-sm font-semibold py-1 px-1">{quantity}</div>
-                <Button
-                  type="button"
-                  variant="ghost"
-                  size="sm"
-                  className="h-7 w-7 rounded-none border-0 hover:bg-stone-100 dark:hover:bg-slate-700 p-0"
-                  onClick={() => handleQuantityChange(1)}
-                >
-                  <LucideIcons.Plus className="w-3 h-3" />
-                </Button>
-              </div>
-            </div>
-          </div>
-
-          {/* Product Image - Right Side */}
-          <div className="flex-shrink-0">
-            <div
-              className="w-20 h-20 bg-white dark:bg-slate-700 rounded-lg overflow-hidden cursor-zoom-in shadow-md hover:shadow-lg transition-all duration-300 group"
-              onClick={() => setIsZoomed(true)}
-            >
-              <Image
-                src={currentColorObj?.imageUrl || "/placeholder.svg"}
-                alt={`${productData.title} - ${selectedColor}`}
-                width={80}
-                height={80}
-                className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-300"
-              />
-            </div>
-          </div>
-        </div>
-      </div>
             {/* Purchase Button */}
             <Button
               id="main-order-button"
@@ -16634,83 +16641,117 @@ router.push(
             </div>
           </div>
         </div>
+        {/* Marketing Section */}
+        <div className="text-center space-y-4 mt-8">
+          <h2 className="text-xl font-bold text-gray-900 leading-tight">
+            MARCHEZ AVEC ÉLÉGANCE
+            <br />- SANS DOULEUR, SANS
+            <br />
+            GÊNE, SANS COMPROMIS.
+          </h2>
+          <p className="text-sm text-gray-700 text-left leading-relaxed">
+            De nombreuses femmes renoncent au style dès que leurs pieds deviennent douloureux, gonflés ou sensibles.
+            Célima a été pensée pour celles qui refusent ce choix. Une sandale légère et féminine, dotée d'un véritable
+            soutien orthopédique, qui épouse la forme du pied au lieu de la contraindre.
+          </p>
 
- {productData?.promoImages?.map((url, index) => (
-      <img
-        key={index}
-        src={url}
-        alt={`Promo ${index + 1}`}
-        className="w-full mb-4 rounded-xl shadow-md mt-8"
-      />
-    ))}
+          {/* Product Image */}
+          <div className="my-6">
+            <img
+              src={productData?.promoImages?.[0]}
+              alt="Sandales blanches Celima"
+              className="w-full h-auto rounded-lg"
+            />
+          </div>
 
+          <p className="text-sm text-gray-700 text-left leading-relaxed">
+            Sa semelle Stability+ absorbe les chocs et soutient la voûte plantaire, tandis que son contrefort arrière et
+            sa coupe ajustée offrent maintien et stabilité, même en cas d'œdème ou de douleurs chroniques. L'avant de la
+            chaussure est conçu pour libérer les orteils de toute pression ou frottement.
+          </p>
 
-        {/* Promotional Banner */}
-        <div className="relative bg-gradient-to-r from-purple-900 to-purple-800 rounded-2xl overflow-hidden text-white text-center py-12 px-6 mt-8">
-          <div className="relative z-10">
-            <div className="mb-6">
-              <Image
-                src={currentColorObj?.imageUrl}
-                alt="White pants promotional"
-                width={150}
-                height={200}
-                className="mx-auto rounded-lg"
-              />
+          {/* Bottom Images and Comparison */}
+          <div className="grid grid-cols-2 gap-4 my-6">
+            <img
+                 src={productData?.promoImages?.[1]}
+              alt="Soin des pieds"
+              className="w-full h-auto rounded-lg"
+            />
+            <img
+                   src={productData?.promoImages?.[2]}
+              alt="Femme heureuse qui marche"
+              className="w-full h-auto rounded-lg"
+            />
+          </div>
+
+          <p className="text-xs text-gray-600 text-left">
+            Fabriquée à partir de matériaux souples, respirants et vegan, Célima s'enfile facilement et accompagne vos
+            mouvements en toute légèreté. Elle soulage les tensions au niveau des pieds, des chevilles et du bas du dos,
+            sans sacrifier votre allure.
+          </p>
+
+          {/* Comparison Table */}
+          <div className="bg-gray-50 p-4 rounded-lg mt-6">
+            <div className="grid grid-cols-3 gap-2 text-xs">
+              <div className="font-semibold text-left">Autres Marques</div>
+              <div></div>
+              <div className="font-semibold text-right">TALLIN</div>
+
+              <div className="text-left text-gray-700">Bout large</div>
+              <div className="text-center">❌</div>
+              <div className="text-right">✅</div>
+
+              <div className="text-left text-gray-700">Contrefort de soutien</div>
+              <div className="text-center">❌</div>
+              <div className="text-right">✅</div>
+
+              <div className="text-left text-gray-700">Tige en maille extensible</div>
+              <div className="text-center">❌</div>
+              <div className="text-right">✅</div>
+
+              <div className="text-left text-gray-700">Semelle anti-dérapante</div>
+              <div className="text-center">❌</div>
+              <div className="text-right">✅</div>
+
+              <div className="text-left text-gray-700">Voûte plantaire</div>
+              <div className="text-center">❌</div>
+              <div className="text-right">✅</div>
+
+              <div className="text-left text-gray-700">Support de la voûte plantaire</div>
+              <div className="text-center">❌</div>
+              <div className="text-right">✅</div>
+
+              <div className="text-left text-gray-700">Qualité Premium à un prix abordable</div>
+              <div className="text-center">❌</div>
+              <div className="text-right">✅</div>
             </div>
+          </div>
 
-            <h2 className="text-2xl font-bold mb-4">{productDataa.promotion.title}</h2>
-            <p className="text-purple-200 mb-6">{productDataa.promotion.description}</p>
-
-            {/* Countdown Timer */}
-            <div className="flex justify-center gap-4 mb-8">
-              <div className="bg-black/30 rounded-full w-16 h-16 flex flex-col items-center justify-center">
-                <span className="text-xl font-bold">{timeLeft.days.toString().padStart(2, "0")}</span>
-                <span className="text-xs">{productDataa.discountTimer.labels.days}</span>
-              </div>
-              <div className="bg-black/30 rounded-full w-16 h-16 flex flex-col items-center justify-center">
-                <span className="text-xl font-bold">{timeLeft.hours.toString().padStart(2, "0")}</span>
-                <span className="text-xs">{productDataa.discountTimer.labels.hours}</span>
-              </div>
-              <div className="bg-black/30 rounded-full w-16 h-16 flex flex-col items-center justify-center">
-                <span className="text-xl font-bold">{timeLeft.minutes.toString().padStart(2, "0")}</span>
-                <span className="text-xs">{productDataa.discountTimer.labels.minutes}</span>
-              </div>
-              <div className="bg-black/30 rounded-full w-16 h-16 flex flex-col items-center justify-center">
-                <span className="text-xl font-bold">{timeLeft.seconds.toString().padStart(2, "0")}</span>
-                <span className="text-xs">{productDataa.discountTimer.labels.seconds}</span>
-              </div>
-            </div>
-
-            <Button className="bg-purple-500 hover:bg-purple-400 text-white px-12 py-3 rounded-full text-lg font-medium">
-              {productDataa.buttons.getItNow}
-            </Button>
-
-            <p className="text-purple-200 text-sm mt-4">{productDataa.promotion.guarantee}</p>
+          {/* Final Marketing Text */}
+          <div className="text-center space-y-4 mt-6">
+            <p className="text-sm text-gray-700 leading-relaxed">
+              La fusion de la science et du style n'est plus qu'à quelques clics, il est temps de{" "}
+              <strong>libérer les tensions plantaire du quotidien.</strong>
+            </p>
+            <p className="text-sm text-gray-700 leading-relaxed">
+              Quand vous prenez de la hauteur, vous prenez inconsciemment de <strong>l'assurance</strong>, il devient
+              plus <strong>facile de s'imposer</strong> auprès des autres, d'être écoutée et respectée. Elle{" "}
+              <strong>allongent les jambes</strong>, galbert les mollets, <strong>affinent la silhouette</strong> et
+              vous donnent de <strong>l'allure</strong>.
+            </p>
+            <p className="text-sm text-gray-700 leading-relaxed">
+              Cette paire mettra fin à la <strong>sensation de pieds fatigués et douloureux</strong>. Belle et
+              sophistiquée à chaque pas.
+            </p>
+          
           </div>
         </div>
 
-        {/* Customer Images Section */}
-        <div className="mt-12">
-          <h2 className="text-2xl font-bold text-center mb-8">{productDataa.testimonials.title}</h2>
 
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-            {productData?.testimonials.map((image, index) => (
-              <div key={index} className="aspect-square bg-gray-100 rounded-lg overflow-hidden">
-                <Image
-                  src={image.reviewImage || "/placeholder.svg"}
-                  alt={`Customer photo ${index + 1}`}
-                  width={200}
-                  height={200}
-                  className="w-full h-full object-cover hover:scale-105 transition-transform duration-300"
-                />
-              </div>
-            ))}
-          </div>
-        </div>
       </div>
 
       {/* Always Visible Bottom Order Button */}
-      <div className="fixed bottom-0 left-0 right-0 bg-white border-t shadow-lg p-4 z-50">
+      {showStickyBar && (<div className="fixed bottom-0 left-0 right-0 bg-white border-t shadow-lg p-4 z-50">
         <div className="max-w-md mx-auto">
         <div className="flex justify-between text-sm font-semibold text-gray-700 dark:text-white border-b pb-2 mb-2">
     <div className="flex flex-col items-start w-1/3">
@@ -16750,7 +16791,7 @@ router.push(
   )}
 </Button>
         </div>
-      </div>
+      </div>)}
 
 
       <Footer facebookUrl={productData.facebookUrl} instagramUrl={productData.instagramUrl} />
