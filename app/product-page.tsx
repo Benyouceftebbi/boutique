@@ -15926,7 +15926,7 @@ const OptimizedHeader = ({ timeLeft }: { timeLeft: any }) => (
         <span className="text-xl animate-bounce">🔥</span>
         {/* Discount badge */}
         <div className="animate-pulse">
-          <span className="bg-yellow-400 text-black px-3 py-1 rounded-full text-sm font-bold shadow-lg">خصم 50%</span>
+          <span className="bg-yellow-400 text-black px-3 py-1 rounded-full text-sm font-bold shadow-lg">خصم 20%</span>
         </div>
         {/* Separator */}
         <span className="text-white opacity-60">|</span>
@@ -16489,7 +16489,7 @@ router.push(
       <div className="flex items-center gap-3 mb-6">
         <span className="text-lg text-gray-400 line-through">{productData.priceBefore}د.ج</span>
         <span className="text-2xl font-bold text-red-600">{productData.priceAfter}د.ج</span>
-        <span className="bg-green-500 text-white text-xs font-medium px-2 py-1 rounded-full">50%</span>
+        <span className="bg-green-500 text-white text-xs font-medium px-2 py-1 rounded-full">20%</span>
       </div>
 
       {/* Color Selection */}
