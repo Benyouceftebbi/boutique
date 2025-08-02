@@ -16291,19 +16291,59 @@ router.push(
   return (
     <div className="min-h-screen bg-white" dir="rtl">
       {/* Header */}
-      <header className="bg-purple-500 px-4 py-3">
-        <div className="max-w-7xl mx-auto">
+      <header className="relative overflow-hidden bg-gradient-to-r from-purple-600 via-pink-500 to-red-500 px-4 py-2">
+      {/* Animated background elements */}
+      <div className="absolute inset-0 opacity-10">
+        <div className="absolute top-0 left-0 w-16 h-16 bg-white rounded-full animate-pulse transform -translate-x-8 -translate-y-8"></div>
+        <div className="absolute top-0 right-0 w-12 h-12 bg-yellow-300 rounded-full animate-bounce transform translate-x-6 -translate-y-6 animation-delay-1000"></div>
+        <div className="absolute bottom-0 left-1/4 w-8 h-8 bg-white rounded-full animate-ping animation-delay-2000"></div>
+      </div>
 
-          {/* Discount timer row */}
-          <div className="text-center">
-  <div className="flex items-center justify-center gap-2 text-sm font-medium">
-    <span>🔥</span>
-    <span>تخفيض حتى 20٪</span>
+      <div className="max-w-7xl mx-auto relative z-10">
+        {/* Single line layout */}
+        <div className="flex items-center justify-center gap-4 text-white">
+          {/* Fire emoji */}
+          <span className="text-xl animate-bounce">🔥</span>
 
-  </div>
-</div>
+          {/* Discount badge */}
+          <div className="animate-pulse">
+            <span className="bg-yellow-400 text-black px-3 py-1 rounded-full text-sm font-bold shadow-lg">خصم 50%</span>
+          </div>
+
+          {/* Separator */}
+          <span className="text-white opacity-60">|</span>
+
+          {/* Countdown Timer - Compact */}
+          <div className="flex items-center gap-2">
+            <span className="text-white text-xs font-medium">ينتهي خلال:</span>
+            <div className="flex gap-1">
+              <div className="bg-white bg-opacity-20 backdrop-blur-sm rounded px-2 py-1 min-w-[30px] text-center animate-pulse">
+                <span className="text-white font-bold text-sm">{timeLeft.hours.toString().padStart(2, "0")}</span>
+              </div>
+              <span className="text-white text-sm">:</span>
+              <div className="bg-white bg-opacity-20 backdrop-blur-sm rounded px-2 py-1 min-w-[30px] text-center animate-pulse animation-delay-500">
+                <span className="text-white font-bold text-sm">{timeLeft.minutes.toString().padStart(2, "0")}</span>
+              </div>
+              <span className="text-white text-sm">:</span>
+              <div className="bg-white bg-opacity-20 backdrop-blur-sm rounded px-2 py-1 min-w-[30px] text-center animate-pulse animation-delay-1000">
+                <span className="text-white font-bold text-sm">{timeLeft.seconds.toString().padStart(2, "0")}</span>
+              </div>
+            </div>
+          </div>
+
+          {/* Separator */}
+          <span className="text-white opacity-60">|</span>
+
+          {/* Urgency message */}
+          <div className="animate-bounce animation-delay-2000">
+            <span className="text-yellow-200 text-xs font-medium">⚡ كمية محدودة</span>
+          </div>
         </div>
-      </header>
+      </div>
+
+      {/* Animated border */}
+      <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-gradient-to-r from-yellow-400 via-orange-500 to-red-500 animate-pulse"></div>
+    </header>
 
       {/* Main Content */}
       <div className="max-w-7xl mx-auto px-4 py-8 pb-32">
