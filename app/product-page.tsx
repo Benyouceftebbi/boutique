@@ -15838,7 +15838,7 @@ const productDataa = {
     login: "تسجيل دخول",
   },
   shipping: {
-    freeShipping: "الشحن مجاني",
+    freeShipping: "الشحن",
     freeShippingDesc: "لجميع أنحاء الجزائر",
     returnPolicy: "استرداد خلال 30 يوم",
     returnPolicyDesc: "ضمان استرداد الأموال",
@@ -15910,6 +15910,156 @@ guarantee: "ضمان مؤكد على المنتج"
   ],
 }
 
+// Optimized Header Component
+const OptimizedHeader = ({ timeLeft }: { timeLeft: any }) => (
+  <header className="relative overflow-hidden bg-gradient-to-r from-purple-600 via-pink-500 to-red-500 px-4 py-2">
+    {/* Animated background elements */}
+    <div className="absolute inset-0 opacity-10">
+      <div className="absolute top-0 left-0 w-16 h-16 bg-white rounded-full animate-pulse transform -translate-x-8 -translate-y-8"></div>
+      <div className="absolute top-0 right-0 w-12 h-12 bg-yellow-300 rounded-full animate-bounce transform translate-x-6 -translate-y-6 animation-delay-1000"></div>
+      <div className="absolute bottom-0 left-1/4 w-8 h-8 bg-white rounded-full animate-ping animation-delay-2000"></div>
+    </div>
+    <div className="max-w-7xl mx-auto relative z-10">
+      {/* Single line layout */}
+      <div className="flex items-center justify-center gap-4 text-white">
+        {/* Fire emoji */}
+        <span className="text-xl animate-bounce">🔥</span>
+        {/* Discount badge */}
+        <div className="animate-pulse">
+          <span className="bg-yellow-400 text-black px-3 py-1 rounded-full text-sm font-bold shadow-lg">خصم 50%</span>
+        </div>
+        {/* Separator */}
+        <span className="text-white opacity-60">|</span>
+        {/* Countdown Timer - Compact */}
+        <div className="flex items-center gap-2">
+          <span className="text-white text-xs font-medium">ينتهي خلال:</span>
+          <div className="flex gap-1">
+            <div className="bg-white bg-opacity-20 backdrop-blur-sm rounded px-2 py-1 min-w-[30px] text-center animate-pulse">
+              <span className="text-white font-bold text-sm">{timeLeft.hours.toString().padStart(2, "0")}</span>
+            </div>
+            <span className="text-white text-sm">:</span>
+            <div className="bg-white bg-opacity-20 backdrop-blur-sm rounded px-2 py-1 min-w-[30px] text-center animate-pulse animation-delay-500">
+              <span className="text-white font-bold text-sm">{timeLeft.minutes.toString().padStart(2, "0")}</span>
+            </div>
+            <span className="text-white text-sm">:</span>
+            <div className="bg-white bg-opacity-20 backdrop-blur-sm rounded px-2 py-1 min-w-[30px] text-center animate-pulse animation-delay-1000">
+              <span className="text-white font-bold text-sm">{timeLeft.seconds.toString().padStart(2, "0")}</span>
+            </div>
+          </div>
+        </div>
+        {/* Separator */}
+        <span className="text-white opacity-60">|</span>
+        {/* Urgency message */}
+        <div className="animate-bounce animation-delay-2000">
+          <span className="text-yellow-200 text-xs font-medium">⚡ كمية محدودة</span>
+        </div>
+      </div>
+    </div>
+    {/* Animated border */}
+    <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-gradient-to-r from-yellow-400 via-orange-500 to-red-500 animate-pulse"></div>
+  </header>
+)
+
+// Optimized Image Gallery Component
+const ImageGallery = ({ currentColorObj, selectedColor, onImageZoom, isLiked, setIsLiked }: any) => {
+  const [imageLoaded, setImageLoaded] = useState(false)
+
+  return (
+    <div className="space-y-6">
+      <div className="relative group">
+        <div
+          className="aspect-square bg-white dark:bg-slate-800 rounded-2xl overflow-hidden cursor-zoom-in shadow-lg hover:shadow-xl transition-all duration-500"
+          onClick={() => onImageZoom(currentColorObj?.imageUrl)}
+        >
+          {!imageLoaded && (
+            <div className="absolute inset-0 bg-gray-200 animate-pulse flex items-center justify-center">
+              <LucideIcons.Loader2 className="w-8 h-8 animate-spin text-gray-400" />
+            </div>
+          )}
+          <Image
+            src={currentColorObj?.imageUrl || "/placeholder.svg"}
+            alt={`- ${selectedColor}`}
+            width={600}
+            height={600}
+            className={`w-full h-full object-cover transition-all duration-700 ${
+              imageLoaded ? "opacity-100 group-hover:scale-105" : "opacity-0"
+            }`}
+            priority
+            quality={85}
+            onLoad={() => setImageLoaded(true)}
+          />
+        </div>
+        <Button
+          variant="ghost"
+          size="icon"
+          className={`absolute top-4 right-4 bg-white/80 dark:bg-slate-800/80 backdrop-blur-sm hover:bg-white dark:hover:bg-slate-700 transition-all duration-300 ${
+            isLiked ? "text-red-500" : "text-gray-400 dark:text-stone-400"
+          }`}
+          onClick={() => setIsLiked(!isLiked)}
+        >
+          <LucideIcons.Heart className={`w-5 h-5 ${isLiked ? "fill-current" : ""}`} />
+        </Button>
+      </div>
+    </div>
+  )
+}
+
+// Optimized Thumbnail Gallery
+const ThumbnailGallery = ({ colorImages, onImageZoom, selectedColor }: any) => {
+  const thumbnailContainerRef = useRef<HTMLDivElement>(null)
+
+  const handleThumbnailScroll = (direction: "left" | "right") => {
+    if (thumbnailContainerRef.current) {
+      const scrollAmount = 200
+      thumbnailContainerRef.current.scrollBy({
+        left: direction === "left" ? -scrollAmount : scrollAmount,
+        behavior: "smooth",
+      })
+    }
+  }
+
+  return (
+    <div className="relative">
+      <Button
+        type="button"
+        variant="outline"
+        size="icon"
+        className="absolute left-0 top-1/2 -translate-y-1/2 z-10 h-8 w-8 rounded-full bg-white/80 hover:bg-white dark:bg-slate-800/80 dark:hover:bg-slate-700 shadow-md"
+        onClick={() => handleThumbnailScroll("left")}
+      >
+        <LucideIcons.ChevronLeft className="h-4 w-4" />
+      </Button>
+      <div ref={thumbnailContainerRef} className="flex overflow-x-auto gap-3 py-2 px-12 scrollbar-hide">
+        {colorImages.map((thumbnail: any, index: number) => (
+          <div
+            key={index}
+            className="aspect-square w-1/4 flex-shrink-0 bg-white dark:bg-slate-800 rounded-xl overflow-hidden cursor-pointer shadow-md hover:shadow-lg transition-all duration-300 transform hover:scale-105"
+            onClick={() => onImageZoom(thumbnail?.imageUrl || "/placeholder.svg")}
+          >
+            <Image
+              src={thumbnail?.imageUrl ? thumbnail?.imageUrl : "/placeholder.svg"}
+              alt={`${selectedColor} variant ${index + 1}`}
+              width={150}
+              height={150}
+              className="w-full h-full object-cover"
+              loading="lazy"
+              quality={75}
+            />
+          </div>
+        ))}
+      </div>
+      <Button
+        type="button"
+        variant="outline"
+        size="icon"
+        className="absolute right-0 top-1/2 -translate-y-1/2 z-10 h-8 w-8 rounded-full bg-white/80 hover:bg-white dark:bg-slate-800/80 dark:hover:bg-slate-700 shadow-md"
+        onClick={() => handleThumbnailScroll("right")}
+      >
+        <LucideIcons.ChevronRight className="h-4 w-4" />
+      </Button>
+    </div>
+  )
+}
 export default function ProductPage() {
   const { productData, loading, error } = useProduct()
   const thumbnailContainerRef = useRef(null)
@@ -16290,128 +16440,25 @@ router.push(
 
   return (
     <div className="min-h-screen bg-white" dir="rtl">
-      {/* Header */}
-      <header className="relative overflow-hidden bg-gradient-to-r from-purple-600 via-pink-500 to-red-500 px-4 py-2">
-      {/* Animated background elements */}
-      <div className="absolute inset-0 opacity-10">
-        <div className="absolute top-0 left-0 w-16 h-16 bg-white rounded-full animate-pulse transform -translate-x-8 -translate-y-8"></div>
-        <div className="absolute top-0 right-0 w-12 h-12 bg-yellow-300 rounded-full animate-bounce transform translate-x-6 -translate-y-6 animation-delay-1000"></div>
-        <div className="absolute bottom-0 left-1/4 w-8 h-8 bg-white rounded-full animate-ping animation-delay-2000"></div>
-      </div>
-
-      <div className="max-w-7xl mx-auto relative z-10">
-        {/* Single line layout */}
-        <div className="flex items-center justify-center gap-4 text-white">
-          {/* Fire emoji */}
-          <span className="text-xl animate-bounce">🔥</span>
-
-          {/* Discount badge */}
-          <div className="animate-pulse">
-            <span className="bg-yellow-400 text-black px-3 py-1 rounded-full text-sm font-bold shadow-lg">خصم 50%</span>
-          </div>
-
-          {/* Separator */}
-          <span className="text-white opacity-60">|</span>
-
-          {/* Countdown Timer - Compact */}
-          <div className="flex items-center gap-2">
-            <span className="text-white text-xs font-medium">ينتهي خلال:</span>
-            <div className="flex gap-1">
-              <div className="bg-white bg-opacity-20 backdrop-blur-sm rounded px-2 py-1 min-w-[30px] text-center animate-pulse">
-                <span className="text-white font-bold text-sm">{timeLeft.hours.toString().padStart(2, "0")}</span>
-              </div>
-              <span className="text-white text-sm">:</span>
-              <div className="bg-white bg-opacity-20 backdrop-blur-sm rounded px-2 py-1 min-w-[30px] text-center animate-pulse animation-delay-500">
-                <span className="text-white font-bold text-sm">{timeLeft.minutes.toString().padStart(2, "0")}</span>
-              </div>
-              <span className="text-white text-sm">:</span>
-              <div className="bg-white bg-opacity-20 backdrop-blur-sm rounded px-2 py-1 min-w-[30px] text-center animate-pulse animation-delay-1000">
-                <span className="text-white font-bold text-sm">{timeLeft.seconds.toString().padStart(2, "0")}</span>
-              </div>
-            </div>
-          </div>
-
-          {/* Separator */}
-          <span className="text-white opacity-60">|</span>
-
-          {/* Urgency message */}
-          <div className="animate-bounce animation-delay-2000">
-            <span className="text-yellow-200 text-xs font-medium">⚡ كمية محدودة</span>
-          </div>
-        </div>
-      </div>
-
-      {/* Animated border */}
-      <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-gradient-to-r from-yellow-400 via-orange-500 to-red-500 animate-pulse"></div>
-    </header>
+      <OptimizedHeader timeLeft={timeLeft} />
 
       {/* Main Content */}
       <div className="max-w-7xl mx-auto px-4 py-8 pb-32">
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
           {/* Product Images */}
-          <div className="space-y-6 ">
-            <div className="relative group">
-              <div
-                className="aspect-square bg-white dark:bg-slate-800 rounded-2xl overflow-hidden cursor-zoom-in shadow-lg hover:shadow-xl transition-all duration-500"
-                onClick={() => handleImageZoom(currentColorObj?.imageUrl)}
-              >
-                <Image
-                  src={currentColorObj?.imageUrl || "/placeholder.svg"}
-                  alt={`${productData.title} - ${selectedColor}`}
-                  width={600}
-                  height={600}
-                  className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700"
-                />
-              </div>
-              <Button
-                variant="ghost"
-                size="icon"
-                className={`absolute top-4 right-4 bg-white/80 dark:bg-slate-800/80 backdrop-blur-sm hover:bg-white dark:hover:bg-slate-700 transition-all duration-300 ${
-                  isLiked ? "text-red-500" : "text-gray-400 dark:text-stone-400"
-                }`}
-                onClick={() => setIsLiked(!isLiked)}
-              >
-                <LucideIcons.Heart className={`w-5 h-5 ${isLiked ? "fill-current" : ""}`} />
-              </Button>
-            </div>
-
-            <div className="relative">
-              <Button
-                type="button"
-                variant="outline"
-                size="icon"
-                className="absolute left-0 top-1/2 -translate-y-1/2 z-10 h-8 w-8 rounded-full bg-white/80 hover:bg-white dark:bg-slate-800/80 dark:hover:bg-slate-700 shadow-md"
-                onClick={() => handleThumbnailScroll("left")}
-              >
-                <LucideIcons.ChevronLeft className="h-4 w-4" />
-              </Button>
-              <div ref={thumbnailContainerRef} className="flex overflow-x-auto gap-3 py-2 px-12 scrollbar-hide">
-                {productData?.colorImages.map((thumbnail: any, index: number) => (
-                  <div
-                    key={index}
-                    className="aspect-square w-1/4 flex-shrink-0 bg-white dark:bg-slate-800 rounded-xl overflow-hidden cursor-pointer shadow-md hover:shadow-lg transition-all duration-300 transform hover:scale-105"
-                    onClick={() => handleImageZoom(thumbnail?.imageUrl || "/placeholder.svg")}
-                  >
-                    <Image
-                      src={thumbnail?.imageUrl? thumbnail?.imageUrl: "/placeholder.svg"}
-                      alt={`${selectedColor} variant ${index + 1}`}
-                      width={150}
-                      height={150}
-                      className="w-full h-full object-cover"
-                    />
-                  </div>
-                ))}
-              </div>
-              <Button
-                type="button"
-                variant="outline"
-                size="icon"
-                className="absolute right-0 top-1/2 -translate-y-1/2 z-10 h-8 w-8 rounded-full bg-white/80 hover:bg-white dark:bg-slate-800/80 dark:hover:bg-slate-700 shadow-md"
-                onClick={() => handleThumbnailScroll("right")}
-              >
-                <LucideIcons.ChevronRight className="h-4 w-4" />
-              </Button>
-            </div>
+          <div className="space-y-6">
+            <ImageGallery
+              currentColorObj={currentColorObj}
+              selectedColor={selectedColor}
+              onImageZoom={handleImageZoom}
+              isLiked={isLiked}
+              setIsLiked={setIsLiked}
+            />
+            <ThumbnailGallery
+              colorImages={productData.colorImages}
+              onImageZoom={handleImageZoom}
+              selectedColor={selectedColor}
+            />
           </div>
 
           {/* Product Details */}
@@ -16453,18 +16500,25 @@ router.push(
           <span className="text-sm font-medium text-gray-900">{selectedColor}</span>
         </div>
         <div className="flex flex-wrap gap-2">
-          {productData.colorImages.map((color, index) => (
-            <button
-              key={color.color}
-              onClick={() => setSelectedColor(color.color)}
-              className={`w-12 h-12 rounded-full overflow-hidden border-2 transition-all ${
-                selectedColor === color.color ? "border-black border-[3px]" : "border-gray-200"
-              }`}
-            >
-              <img src={color.imageUrl || "/placeholder.svg"} alt={color.color} className="w-full h-full object-cover" />
-            </button>
-          ))}
-        </div>
+  {productData.colorImages.map((color) => (
+    <button
+      key={color.color}
+      onClick={() => setSelectedColor(color.color)}
+      className={`w-12 h-12 rounded-full overflow-hidden border-2 transition-all ${
+        selectedColor === color.color ? "border-black border-[3px]" : "border-gray-200"
+      }`}
+    >
+      <img
+        src={`${color.imageUrl}?w=60&h=60&auto=format&fit=crop&q=40`} // adjust based on your image service
+        alt={color.color}
+        loading="lazy"
+        width={48}
+        height={48}
+        className="w-full h-full object-cover"
+      />
+    </button>
+  ))}
+</div>
       </div>
 
       {/* Size Selection */}
@@ -16679,21 +16733,25 @@ router.push(
   <h2 className="text-xl font-bold text-gray-900 leading-tight">
     الأناقة والراحة في كل خطوة
     <br />
-    - بدون ألم، بدون ضغط، بدون تنازلات.
+    - بدون ألم، بدون ضغط .
   </h2>
 
   <p className="text-sm text-gray-700 text-right leading-relaxed">
-    صُمم Sabot 3001 من Tallin Shoes للنساء النشيطات اللواتي يرفضن الاختيار بين <strong>الراحة</strong> و<strong>الأناقة</strong>.
+    صُمم {productData.productTitle} من Tallin Shoes للنساء النشيطات اللواتي يرفضن الاختيار بين <strong>الراحة</strong> و<strong>الأناقة</strong>.
     سواء للعمل، أو الخروج، أو حتى في المنزل – يمنحك هذا الحذاء مظهرًا راقيًا وشعورًا بالراحة طوال اليوم.
   </p>
 
   {/* صورة المنتج */}
   <div className="my-6">
-    <img
-      src={productData?.promoImages?.[0]}
-      alt="Sabot 3001 من Tallin Shoes"
-      className="w-full h-auto rounded-lg"
-    />
+  <Image
+              src={productData?.promoImages?.[0] || "/placeholder.svg"}
+              alt="Sabot 3001 من Tallin Shoes"
+              width={800}
+              height={400}
+              className="w-full h-auto rounded-lg"
+              loading="lazy"
+              quality={80}
+            />
   </div>
 
   <p className="text-sm text-gray-700 text-right leading-relaxed">
@@ -16703,20 +16761,28 @@ router.push(
 
   {/* صور إضافية */}
   <div className="grid grid-cols-2 gap-4 my-6">
-    <img
-      src={productData?.promoImages?.[1]}
-      alt="راحة القدم اليومية"
-      className="w-full h-auto rounded-lg"
-    />
-    <img
-      src={productData?.promoImages?.[2]}
-      alt="امرأة ترتدي صبّاط أنيق"
-      className="w-full h-auto rounded-lg"
-    />
+  <Image
+              src={productData?.promoImages?.[1] || "/placeholder.svg"}
+              alt="راحة القدم اليومية"
+              width={400}
+              height={300}
+              className="w-full h-auto rounded-lg"
+              loading="lazy"
+              quality={75}
+            />
+            <Image
+              src={productData?.promoImages?.[2] || "/placeholder.svg"}
+              alt="امرأة ترتدي صبّاط أنيق"
+              width={400}
+              height={300}
+              className="w-full h-auto rounded-lg"
+              loading="lazy"
+              quality={75}
+            />
   </div>
 
   <p className="text-xs text-gray-600 text-right">
-    خفيف، مرن، وخالٍ من المنتجات الحيوانية. صبّاط 3001 سهل الارتداء ويتماشى مع حركة القدم بسلاسة. يساعد على تخفيف التوتر
+    خفيف، مرن، وخالٍ من المنتجات الحيوانية.{productData.productTitle} سهل الارتداء ويتماشى مع حركة القدم بسلاسة. يساعد على تخفيف التوتر
     في الكعبين والكاحلين وحتى أسفل الظهر – مثالي لمن يقضين ساعات طويلة واقفات.
   </p>
 
