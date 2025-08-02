@@ -16291,24 +16291,17 @@ router.push(
   return (
     <div className="min-h-screen bg-white" dir="rtl">
       {/* Header */}
-      <header className="bg-gradient-to-r from-yellow-300 to-yellow-400 px-4 py-3">
+      <header className="bg-purple-500 px-4 py-3">
         <div className="max-w-7xl mx-auto">
 
           {/* Discount timer row */}
           <div className="text-center">
-            <div className="flex items-center justify-center gap-2 text-sm font-medium">
-              <span>🔥</span>
-              <span>{productDataa.discountTimer.message}</span>
-              <div className="flex items-center gap-1 bg-black/20 rounded px-2 py-1">
-                <span>{timeLeft.hours.toString().padStart(2, "0")}</span>
-                <span>:</span>
-                <span>{timeLeft.minutes.toString().padStart(2, "0")}</span>
-                <span>:</span>
-                <span>{timeLeft.seconds.toString().padStart(2, "0")}</span>
-              </div>
-              <span>⏰</span>
-            </div>
-          </div>
+  <div className="flex items-center justify-center gap-2 text-sm font-medium">
+    <span>🔥</span>
+    <span>تخفيض حتى 20٪</span>
+
+  </div>
+</div>
         </div>
       </header>
 
@@ -16642,110 +16635,98 @@ router.push(
           </div>
         </div>
         {/* Marketing Section */}
-        <div className="text-center space-y-4 mt-8">
-          <h2 className="text-xl font-bold text-gray-900 leading-tight">
-            MARCHEZ AVEC ÉLÉGANCE
-            <br />- SANS DOULEUR, SANS
-            <br />
-            GÊNE, SANS COMPROMIS.
-          </h2>
-          <p className="text-sm text-gray-700 text-left leading-relaxed">
-            De nombreuses femmes renoncent au style dès que leurs pieds deviennent douloureux, gonflés ou sensibles.
-            Célima a été pensée pour celles qui refusent ce choix. Une sandale légère et féminine, dotée d'un véritable
-            soutien orthopédique, qui épouse la forme du pied au lieu de la contraindre.
-          </p>
+<div className="text-center space-y-4 mt-8">
+  <h2 className="text-xl font-bold text-gray-900 leading-tight">
+    الأناقة والراحة في كل خطوة
+    <br />
+    - بدون ألم، بدون ضغط، بدون تنازلات.
+  </h2>
 
-          {/* Product Image */}
-          <div className="my-6">
-            <img
-              src={productData?.promoImages?.[0]}
-              alt="Sandales blanches Celima"
-              className="w-full h-auto rounded-lg"
-            />
-          </div>
+  <p className="text-sm text-gray-700 text-right leading-relaxed">
+    صُمم Sabot 3001 من Tallin Shoes للنساء النشيطات اللواتي يرفضن الاختيار بين <strong>الراحة</strong> و<strong>الأناقة</strong>.
+    سواء للعمل، أو الخروج، أو حتى في المنزل – يمنحك هذا الحذاء مظهرًا راقيًا وشعورًا بالراحة طوال اليوم.
+  </p>
 
-          <p className="text-sm text-gray-700 text-left leading-relaxed">
-            Sa semelle Stability+ absorbe les chocs et soutient la voûte plantaire, tandis que son contrefort arrière et
-            sa coupe ajustée offrent maintien et stabilité, même en cas d'œdème ou de douleurs chroniques. L'avant de la
-            chaussure est conçu pour libérer les orteils de toute pression ou frottement.
-          </p>
+  {/* صورة المنتج */}
+  <div className="my-6">
+    <img
+      src={productData?.promoImages?.[0]}
+      alt="Sabot 3001 من Tallin Shoes"
+      className="w-full h-auto rounded-lg"
+    />
+  </div>
 
-          {/* Bottom Images and Comparison */}
-          <div className="grid grid-cols-2 gap-4 my-6">
-            <img
-                 src={productData?.promoImages?.[1]}
-              alt="Soin des pieds"
-              className="w-full h-auto rounded-lg"
-            />
-            <img
-                   src={productData?.promoImages?.[2]}
-              alt="Femme heureuse qui marche"
-              className="w-full h-auto rounded-lg"
-            />
-          </div>
+  <p className="text-sm text-gray-700 text-right leading-relaxed">
+    يتميز بنعل تشريحي يدعم <strong>قوس القدم</strong> ويقلل من التعب والألم. بفضل تصميمه الواسع والمواد الجلدية الناعمة
+    والتهوية الجيدة، يناسب حتى الأقدام الحساسة أو المتورمة – بدون احتكاك، بدون انزعاج، فقط حرية مريحة في كل خطوة.
+  </p>
 
-          <p className="text-xs text-gray-600 text-left">
-            Fabriquée à partir de matériaux souples, respirants et vegan, Célima s'enfile facilement et accompagne vos
-            mouvements en toute légèreté. Elle soulage les tensions au niveau des pieds, des chevilles et du bas du dos,
-            sans sacrifier votre allure.
-          </p>
+  {/* صور إضافية */}
+  <div className="grid grid-cols-2 gap-4 my-6">
+    <img
+      src={productData?.promoImages?.[1]}
+      alt="راحة القدم اليومية"
+      className="w-full h-auto rounded-lg"
+    />
+    <img
+      src={productData?.promoImages?.[2]}
+      alt="امرأة ترتدي صبّاط أنيق"
+      className="w-full h-auto rounded-lg"
+    />
+  </div>
 
-          {/* Comparison Table */}
-          <div className="bg-gray-50 p-4 rounded-lg mt-6">
-            <div className="grid grid-cols-3 gap-2 text-xs">
-              <div className="font-semibold text-left">Autres Marques</div>
-              <div></div>
-              <div className="font-semibold text-right">TALLIN</div>
+  <p className="text-xs text-gray-600 text-right">
+    خفيف، مرن، وخالٍ من المنتجات الحيوانية. صبّاط 3001 سهل الارتداء ويتماشى مع حركة القدم بسلاسة. يساعد على تخفيف التوتر
+    في الكعبين والكاحلين وحتى أسفل الظهر – مثالي لمن يقضين ساعات طويلة واقفات.
+  </p>
 
-              <div className="text-left text-gray-700">Bout large</div>
-              <div className="text-center">❌</div>
-              <div className="text-right">✅</div>
+  {/* جدول المقارنة */}
+  <div className="bg-gray-50 p-4 rounded-lg mt-6">
+    <div className="grid grid-cols-3 gap-2 text-xs">
+      <div className="font-semibold text-right">الماركات الأخرى</div>
+      <div></div>
+      <div className="font-semibold text-left">TALLIN</div>
 
-              <div className="text-left text-gray-700">Contrefort de soutien</div>
-              <div className="text-center">❌</div>
-              <div className="text-right">✅</div>
+      <div className="text-right text-gray-700">نعل طبي مريح</div>
+      <div className="text-center">❌</div>
+      <div className="text-left">✅</div>
 
-              <div className="text-left text-gray-700">Tige en maille extensible</div>
-              <div className="text-center">❌</div>
-              <div className="text-right">✅</div>
+      <div className="text-right text-gray-700">مضاد للتعرق</div>
+      <div className="text-center">❌</div>
+      <div className="text-left">✅</div>
 
-              <div className="text-left text-gray-700">Semelle anti-dérapante</div>
-              <div className="text-center">❌</div>
-              <div className="text-right">✅</div>
+      <div className="text-right text-gray-700">تصميم عصري</div>
+      <div className="text-center">❌</div>
+      <div className="text-left">✅</div>
 
-              <div className="text-left text-gray-700">Voûte plantaire</div>
-              <div className="text-center">❌</div>
-              <div className="text-right">✅</div>
+      <div className="text-right text-gray-700">جلد نباتي ناعم</div>
+      <div className="text-center">❌</div>
+      <div className="text-left">✅</div>
 
-              <div className="text-left text-gray-700">Support de la voûte plantaire</div>
-              <div className="text-center">❌</div>
-              <div className="text-right">✅</div>
+      <div className="text-right text-gray-700">دعم للكعب والظهر</div>
+      <div className="text-center">❌</div>
+      <div className="text-left">✅</div>
 
-              <div className="text-left text-gray-700">Qualité Premium à un prix abordable</div>
-              <div className="text-center">❌</div>
-              <div className="text-right">✅</div>
-            </div>
-          </div>
+      <div className="text-right text-gray-700">جودة عالية بسعر مناسب</div>
+      <div className="text-center">❌</div>
+      <div className="text-left">✅</div>
+    </div>
+  </div>
 
-          {/* Final Marketing Text */}
-          <div className="text-center space-y-4 mt-6">
-            <p className="text-sm text-gray-700 leading-relaxed">
-              La fusion de la science et du style n'est plus qu'à quelques clics, il est temps de{" "}
-              <strong>libérer les tensions plantaire du quotidien.</strong>
-            </p>
-            <p className="text-sm text-gray-700 leading-relaxed">
-              Quand vous prenez de la hauteur, vous prenez inconsciemment de <strong>l'assurance</strong>, il devient
-              plus <strong>facile de s'imposer</strong> auprès des autres, d'être écoutée et respectée. Elle{" "}
-              <strong>allongent les jambes</strong>, galbert les mollets, <strong>affinent la silhouette</strong> et
-              vous donnent de <strong>l'allure</strong>.
-            </p>
-            <p className="text-sm text-gray-700 leading-relaxed">
-              Cette paire mettra fin à la <strong>sensation de pieds fatigués et douloureux</strong>. Belle et
-              sophistiquée à chaque pas.
-            </p>
-          
-          </div>
-        </div>
+  {/* النص التسويقي الختامي */}
+  <div className="text-center space-y-4 mt-6">
+    <p className="text-sm text-gray-700 leading-relaxed">
+      صبّاط 3001 يمنحك <strong>حرية في الحركة</strong> دون التضحية بمظهرك. ودّعي آلام القدم في نهاية اليوم واستمتعي براحة ممتازة.
+    </p>
+    <p className="text-sm text-gray-700 leading-relaxed">
+      كل خطوة تصبح أكثر ثقة وثباتًا وأناقة. هذا الحذاء <strong>يطيل الساقين</strong>، <strong>يعزز استقامة القوام</strong>، 
+      ويضفي <strong>لمسة من الجاذبية</strong> على إطلالتك.
+    </p>
+    <p className="text-sm text-gray-700 leading-relaxed">
+      لا تسمحي للألم أن يتحكم بيومك. <strong>امنحي قدميك ما تستحقه مع Tallin.</strong>
+    </p>
+  </div>
+</div>
 
 
       </div>
